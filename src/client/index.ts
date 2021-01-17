@@ -1,12 +1,24 @@
 import io from 'socket.io-client';
-import { logger } from './logger';
+import winston from 'winston';
 import readline from 'readline';
+import dotenv from 'dotenv';
+
+require('../logger'); // setup logger
+const logger = winston.loggers.get('client');
+
+// setup env vars
+dotenv.config();
 
 // Constants
 const BACKEND_URL = 'http://localhost:4200';
 
 // Socket.io config
-const socket = io.connect(BACKEND_URL);
+const socket = io(BACKEND_URL, {
+  // @ts-ignore
+  auth: {
+    token: process.env.TEST_JWT || ""
+  }
+});
 
 socket.on('connect', () => {
   logger.info(`Socket connected with id: ${socket.id}`);
@@ -16,8 +28,8 @@ socket.on('connect', () => {
   }, 500);
 });
 
-socket.on('connect_error', () => {
-  logger.error('Connection Error');
+socket.on('connect_error', (err: any) => {
+  logger.error(err.message);
 });
 
 socket.on('hello', () => {

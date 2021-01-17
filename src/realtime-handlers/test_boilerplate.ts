@@ -1,17 +1,16 @@
 const io = require('socket.io-client');
-const http = require('http');
 
 import { AddressInfo } from 'net';
 import { Server } from 'http';
 import { Socket } from 'socket.io';
-import server from './app';
+import server from '../app';
 
-let socket: Socket;
+export let socket: Socket;
 let httpServer: Server;
 let httpServerAddr: string | AddressInfo | null;
 
 /**
- * Setup WS & HTTP servers
+ * Start backend server
  */
 beforeAll((done) => {
   httpServer = server.listen();
@@ -20,7 +19,7 @@ beforeAll((done) => {
 });
 
 /**
- *  Cleanup WS & HTTP servers
+ * Stop backend server
  */
 afterAll((done) => {
   httpServer.close(() => {
@@ -29,17 +28,18 @@ afterAll((done) => {
 });
 
 /**
- * Run before each test
+ * Connect with Socket.IO client before each test
  */
 beforeEach((done) => {
-  // Setup
-  // Do not hardcode server port and address, square brackets are used for IPv6
   if (httpServerAddr != null && typeof(httpServerAddr) !== "string") {
     socket = io.connect(`http://localhost:${httpServerAddr.port}`, {
       'reconnection delay': 0,
       'reopen delay': 0,
       'force new connection': true,
       transports: ['websocket'],
+      auth: {
+        token: "TEST_TOKEN" // only valid in test environment
+      }
     });
     socket.on('connect', () => {
       done();
@@ -48,7 +48,7 @@ beforeEach((done) => {
 });
 
 /**
- * Run after each test
+ * Disconnect Socket.IO client after each test
  */
 afterEach((done) => {
   // Cleanup socket and http server
@@ -56,14 +56,4 @@ afterEach((done) => {
     socket.disconnect();
   };
   done();
-});
-
-
-describe('socket.io', () => {
-  test('should ping', (done) => {
-    socket.on('pong', () => {
-      done();
-    });
-    socket.emit('ping', {});
-  });
 });

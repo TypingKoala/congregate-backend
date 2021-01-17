@@ -8,8 +8,5 @@ import { registerPingHandler } from './ping';
  * handlers for
  */
 export const registerRealtimeHandlers = (socket: Socket) => {
-  // send hello message on connection
-  socket.emit('hello');
-
   registerPingHandler(socket);
 };
