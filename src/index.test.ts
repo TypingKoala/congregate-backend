@@ -16,7 +16,6 @@ let httpServerAddr: string | AddressInfo | null;
 beforeAll((done) => {
   httpServer = server.listen();
   httpServerAddr = server.address();
-  console.log(httpServerAddr);
   done();
 });
 
@@ -24,8 +23,9 @@ beforeAll((done) => {
  *  Cleanup WS & HTTP servers
  */
 afterAll((done) => {
-  httpServer.close();
-  done();
+  httpServer.close(() => {
+    done();
+  });
 });
 
 /**
@@ -51,20 +51,19 @@ beforeEach((done) => {
  * Run after each test
  */
 afterEach((done) => {
-  // Cleanup
+  // Cleanup socket and http server
   if (socket.connected) {
     socket.disconnect();
-  }
+  };
   done();
 });
 
 
 describe('socket.io', () => {
   test('should ping', (done) => {
-    socket.emit('ping')
     socket.on('pong', () => {
       done();
     });
-    done();
+    socket.emit('ping', {});
   });
 });
