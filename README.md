@@ -12,6 +12,7 @@ This document describes the implemented API of the backend server, along with th
     - [TODO: Event: `gameUpdate`](#todo-event-gameupdate)
     - [TODO: Event: `gameStatus`](#todo-event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
+    - [Event: `initialPosition`](#event-initialposition)
   - [Type: REST API](#type-rest-api)
     - [Route: `/`](#route-)
     - [Route `/api/getUniqueGameID`](#route-apigetuniquegameid)
@@ -133,7 +134,8 @@ socket.emit('gameUpdate', gameUpdateData);
 ### TODO: Event: `gameStatus`
 Not implemented yet. 
 
-This event is sent from the server to the clients when the game state changes in a way that the clients need to know (e.g. when a win or loss occurs).
+This event is sent from the server to the clients when the game state changes. This
+information is sent about once a second, updating the `timeRemaining` field.
 
 ```ts
 export enum GameStatus {
@@ -166,11 +168,24 @@ Note: This event should be only emitted by the client when in the `InLobby` game
 
 The client should emit this message once the player is ready to begin. When both players are ready, the game will progress to the `Starting` state.
 
+After the countdown, the server will send the `initialPositions` event, described below.
+
 ```ts
 // request
 socket.emit('playerReady');
 
 // response: none
+```
+
+### Event: `initialPosition`
+When the server generates the intitial positions, it will send the initial position
+of the player once the game starts.
+
+```ts
+// on game start
+socket.on('initialPosition', (gameUpdateData: IGameUpdateData) => {
+  console.log(gameUpdateData);
+});
 ```
 
 ## Type: REST API
