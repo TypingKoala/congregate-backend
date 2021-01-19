@@ -13,12 +13,13 @@ const logger = winston.loggers.get('server');
 // Load environment variables
 dotenv.config()
 
-// Warn in dev environment
-if (process.env.NODE_ENV === 'test') {
-  logger.warn('Strict token checking is disabled in test environment.')
-}
-
+// configure express app
 const app = express();
+app.get('/', (req, res) => {
+  res.json({ version: 1 })
+})
+app.use('/api', require('./api'));
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
