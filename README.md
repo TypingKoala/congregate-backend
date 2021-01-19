@@ -80,8 +80,8 @@ The server will not respond when sending a message, but a `message` event will b
 ```ts
 // message data object definition
 interface IMessageEventData {
-  text: string,
-  name: string,
+  text: string
+  name: string
   timestamp: number // milliseconds since Unix epoch
 }
 
@@ -110,13 +110,12 @@ The server will not respond to this event.
 
 ```ts
 // game update data object definition
-interface IGameUpdateData = {
+interface IGameUpdateData {
   // send current player coordinates
   pos: {
     lat: number,
     lng: number
-  },
-
+  }
 }
 
 // request
@@ -137,17 +136,18 @@ Not implemented yet.
 This event is sent from the server to the clients when the game state changes in a way that the clients need to know (e.g. when a win or loss occurs).
 
 ```ts
-enum GameStatus {
+export enum GameStatus {
   InLobby, // when waiting for other player
   Starting, // game is starting in 3 seconds
   InProgress, // game in progress
   Win, // players found each other
   Loss, // players ran out of time
 }
+
 // game status data object definition
-interface IGameStatusData = {
-  status: GameStatus,
-  timeRemaining: number, // in seconds
+export interface IGameStatusData {
+  status: GameStatus
+  timeRemaining: number // in seconds
   score: number // cumulative score after each game
 }
 

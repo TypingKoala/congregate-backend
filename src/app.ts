@@ -6,10 +6,6 @@ import { registerRealtimeHandlers } from './realtime-handlers';
 import { Server, Socket } from 'socket.io';
 import { authenticateConnection } from './realtime-middlewares'
 
-import winston from 'winston';
-require('./logger');
-const logger = winston.loggers.get('server');
-
 // Load environment variables
 dotenv.config()
 
