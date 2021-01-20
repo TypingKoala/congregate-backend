@@ -176,7 +176,7 @@ interface IGameStatusData {
   status: GameStatus
   timeRemaining: number // in seconds
   score: number // cumulative score after each game
-  players: IPlayerData
+  players: IPlayerData[]
 }
 
 // request: none

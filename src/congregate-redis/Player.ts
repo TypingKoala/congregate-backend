@@ -1,5 +1,9 @@
 import { Position } from './Position';
 
+export interface IPlayerData {
+  username: string
+}
+
 export default class Player {
   readonly username: string;
   readonly email: string;
@@ -18,5 +22,11 @@ export default class Player {
 
   getPos() {
     return this.pos;
+  }
+
+  getPlayerData(): IPlayerData {
+    return {
+      username: this.username
+    }
   }
 }

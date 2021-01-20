@@ -166,6 +166,7 @@ export default class Game {
       status: this.status,
       timeRemaining: this.timeRemaining,
       score: this.score,
+      players: this.players.map((player) => player.getPlayerData())
     };
     return gameStatus;
   }

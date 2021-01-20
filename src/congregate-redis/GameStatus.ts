@@ -1,3 +1,5 @@
+import { IPlayerData } from "./Player";
+
 export enum GameStatus {
   InLobby = "InLobby", // when waiting for other player
   Starting = "Starting", // game is starting in 3 seconds
@@ -11,4 +13,5 @@ export interface IGameStatusData {
   status: GameStatus
   timeRemaining: number // in seconds
   score: number // cumulative score after each game
+  players: IPlayerData[]
 }
