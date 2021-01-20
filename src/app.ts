@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { registerRealtimeHandlers } from './realtime-handlers';
 import { Server, Socket } from 'socket.io';
 import { authenticateConnection } from './realtime-middlewares';
-import { connectToRoom } from './realtime-middlewares/room';
+import { matchAndJoin } from './realtime-middlewares/games';
 
 // Load environment variables
 dotenv.config();
@@ -26,7 +26,7 @@ export const io = new Server(server, {
 
 // Register socket.io middleware
 io.use(authenticateConnection);
-io.use(connectToRoom);
+io.use(matchAndJoin);
 
 // On an incoming socket.io connection, register event handlers
 io.on('connection', (socket: Socket) => {

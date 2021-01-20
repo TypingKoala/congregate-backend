@@ -1,5 +1,6 @@
 'use strict';
 import assert from 'assert';
+import { setInterval, clearInterval } from 'timers';
 
 import { GameStatus, IGameStatusData } from './GameStatus';
 import game_settings from '../game_settings';
@@ -32,7 +33,7 @@ export default class Game {
   private timeRemaining: number;
   private score: number;
   private readonly players: Player[];
-  private intervalID?: number;
+  private intervalTimeout?: NodeJS.Timeout;
   private onUpdate?: (game: Game) => void;
   private onPositionSet?: () => void;
 
@@ -52,24 +53,24 @@ export default class Game {
     this.players = [];
 
     // register the game ticker
-    this.intervalID = undefined;
+    this.intervalTimeout = undefined;
     this.registerTicker();
   }
 
   // PRIVATE METHODS
   private registerTicker() {
-    assert(this.intervalID === undefined, 'double ticker registration');
+    assert(this.intervalTimeout === undefined, 'double ticker registration');
 
-    this.intervalID = window.setInterval(this.tick.bind(this), 1000);
+    this.intervalTimeout = setInterval(this.tick.bind(this), 1000);
   }
 
   private unregisterTicker() {
     assert(
-      this.intervalID !== undefined,
+      this.intervalTimeout !== undefined,
       "can't unregister a non-existant ticker"
     );
 
-    window.clearInterval(this.intervalID);
+    clearInterval(this.intervalTimeout);
   }
 
   /**

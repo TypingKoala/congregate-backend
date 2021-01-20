@@ -40,6 +40,10 @@ socket.on('pong', () => {
   logger.info('Received pong from backend.');
 });
 
+socket.on('matchSuccess', (data: any) => {
+  logger.info('matchSuccess', data)
+});
+
 function main() {
   const rl = readline.createInterface({
     input: process.stdin,
