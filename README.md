@@ -8,6 +8,7 @@ This document describes the implemented API of the backend server, along with th
   - [Type: SocketIO](#type-socketio)
     - [Client Connection](#client-connection)
     - [Event: `ping` and `pong`](#event-ping-and-pong)
+    - [TODO: Event `matchSuccess`](#todo-event-matchsuccess)
     - [TODO: Event `message`](#todo-event-message)
     - [TODO: Event: `gameUpdate`](#todo-event-gameupdate)
     - [TODO: Event: `gameStatus`](#todo-event-gamestatus)
@@ -16,6 +17,7 @@ This document describes the implemented API of the backend server, along with th
   - [Type: REST API](#type-rest-api)
     - [Route: `/`](#route-)
     - [Route `/api/getUniqueGameID`](#route-apigetuniquegameid)
+    - [Route `/api/getAnonymousToken`](#route-apigetanonymoustoken)
 
 
 ## Basic User Flow
@@ -35,7 +37,8 @@ Each WebSocket message may have side-effects, resulting in changes to state for 
 In the examples below, we assume the backend is running on `http://localhost:4200`.
 
 ### Client Connection
-To connect to the server, the client must authenticate the user and specify the game room that the user is joining.
+To connect to the server, the client must authenticate the user and specify the game room that the user is joining. If a game room is not specified, then the user will be placed into
+a matchmaking session. 
 
 ```ts
 // User's game room acquired via REST API
@@ -69,6 +72,24 @@ socket.emit('ping');
 socket.on('pong', () => {
   done();
 });
+```
+
+### TODO: Event `matchSuccess`
+Not implemented yet.
+
+This event will be sent from the server to the client once the server has found
+a match in matchmaking. The new Game ID will be sent to the client, and the socket
+will automatically connect to the room without any additional client intervention
+
+```ts
+interface IMatchSuccessData {
+  gameID: string
+}
+
+// when a match is successful
+socket.on('matchSuccess', (data: IMatchSuccessData) => {
+  console.log(data);
+})
 ```
 
 ### TODO: Event `message`
@@ -138,7 +159,7 @@ This event is sent from the server to the clients when the game state changes. T
 information is sent about once a second, updating the `timeRemaining` field.
 
 ```ts
-export enum GameStatus {
+enum GameStatus {
   InLobby, // when waiting for other player
   Starting, // game is starting in 3 seconds
   InProgress, // game in progress
@@ -146,11 +167,16 @@ export enum GameStatus {
   Loss, // players ran out of time
 }
 
+interface IPlayerData {
+  username: string
+}
+
 // game status data object definition
-export interface IGameStatusData {
+interface IGameStatusData {
   status: GameStatus
   timeRemaining: number // in seconds
   score: number // cumulative score after each game
+  players: IPlayerData
 }
 
 // request: none
@@ -203,6 +229,9 @@ Returns metadata about the API.
     * `version` (number): specifies the version number of the API (starting at `1`)
 
 ### Route `/api/getUniqueGameID`
+* [Implementation](src/api/generateGameID.ts)
+* [Tests](src/api/generateGameID.test.ts)
+* 
 Returns a unique Game ID (UGID) that can be used to start a new game session.
 
 * Request
@@ -211,4 +240,18 @@ Returns a unique Game ID (UGID) that can be used to start a new game session.
   * `Content-Type: application/json`
   * Fields:
     * `gameID` (string): the requested UGID
+    * `error` (string): an error message to display to the user if an error occurred
+
+### Route `/api/getAnonymousToken`
+* [Implementation](src/api/getAnonymousToken.ts)
+* [Tests](src/api/getAnonymousToken.test.ts)
+  
+Returns a token to be used for Socket IO authentication for an anonymous user.
+
+* Request
+  * Path: `/api/getAnonymousToken`
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `token` (string): an anonymous token
     * `error` (string): an error message to display to the user if an error occurred

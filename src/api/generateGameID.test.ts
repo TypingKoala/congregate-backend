@@ -16,5 +16,15 @@ describe('GET /api/getUniqueGameID', () => {
       .get('/api/getUniqueGameID')
       .expect('Content-Type', /json/)
       .expect(200, done);
-  })
+  });
+
+  it('returns a gameID in the json', (done) => {
+    request(app)
+      .get('/api/getUniqueGameID')
+      .then((response) => {
+        expect(Object.keys(response.body)).toContain('gameID');
+        done();
+      })
+      .catch((err) => done(err));
+  });
 })
