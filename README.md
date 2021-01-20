@@ -50,7 +50,7 @@ const token = 'USER_TOKEN';
 // Connect to socket
 const socket = io('http://localhost:4200', {
   query: {
-    gameRoom
+    gameID
   },
   auth: {
     token
