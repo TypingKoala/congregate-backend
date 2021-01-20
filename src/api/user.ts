@@ -1,7 +1,7 @@
 export interface IUserJWTPayload {
-  sub: string;
+  sub: string; // email address
   name: string;
-  role: 'admin' | 'normal';
+  role: 'admin' | 'normal' | 'anonymous';
 }
 
 export const isUserJWTPayload = (obj: any) => {
