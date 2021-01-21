@@ -12,6 +12,7 @@ dotenv.config();
 
 // configure express app
 const app = express();
+app.use(require('cors')());
 app.get('/', (req, res) => {
   res.json({ version: 1 });
 });
