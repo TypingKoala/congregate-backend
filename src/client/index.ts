@@ -2,6 +2,7 @@ import io from 'socket.io-client';
 import winston from 'winston';
 import readline from 'readline';
 import dotenv from 'dotenv';
+import { generateAnonymousToken } from '../api/getAnonymousToken';
 
 require('../logger'); // setup logger
 const logger = winston.loggers.get('client');
@@ -14,9 +15,12 @@ const BACKEND_URL = 'http://localhost:4200';
 
 // Socket.io config
 const socket = io(BACKEND_URL, {
+  query: {
+    gameID: "hello"
+  },
   // @ts-ignore
   auth: {
-    token: process.env.TEST_JWT || ""
+    token: generateAnonymousToken()
   }
 });
 
@@ -43,6 +47,10 @@ socket.on('pong', () => {
 socket.on('matchSuccess', (data: any) => {
   logger.info('matchSuccess', data)
 });
+
+socket.on('gameStatus', (data: any) => {
+  logger.info('gameStatus', data);
+})
 
 function main() {
   const rl = readline.createInterface({
