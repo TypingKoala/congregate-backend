@@ -54,6 +54,10 @@ export const matchAndJoin = (socket: Socket, next: any) => {
     addToMatchmaking(gameSocket);
   } else {
     const gameID = (<ISocketQuery>gameSocket.handshake.query).gameID;
+    logger.info('Joining room', {
+      socket: socket.id,
+      gameID
+    });
     joinRoom(gameSocket, gameID);
   }
   next();

@@ -53,6 +53,10 @@ socket.on('gameStatus', (data: any) => {
   logger.info('gameStatus', data);
 })
 
+socket.on('initialPosition', (data: any) => {
+  logger.info('initialPosition', data);
+})
+
 function main() {
   const rl = readline.createInterface({
     input: process.stdin,
