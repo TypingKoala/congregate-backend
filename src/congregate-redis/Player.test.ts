@@ -10,11 +10,11 @@ describe('Player', () => {
 
   it('allows update and getting of position', () => {
     const newPlayer = new Player('username', 'email');
-    newPlayer.updatePos({
+    newPlayer.pos = {
       lat: 10,
       lng: 10,
-    });
-    expect(newPlayer.getPos()).toEqual({
+    };
+    expect(newPlayer.pos).toEqual({
       lat: 10,
       lng: 10,
     });

@@ -8,8 +8,8 @@
     "build": "tsc -p .",
     "build:live": "ts-node-dev src/index.ts",
     "client": "ts-node-dev src/client/index.ts",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch --detectOpenHandles"
   },
   "repository": {
     "type": "git",

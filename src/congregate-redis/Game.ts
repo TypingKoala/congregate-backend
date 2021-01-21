@@ -1,6 +1,6 @@
 'use strict';
 import assert from 'assert';
-import { setInterval, clearInterval } from 'timers';
+import { setTimeout, clearTimeout } from 'timers';
 
 import { GameStatus, IGameStatusData } from './GameStatus';
 import game_settings from '../game_settings';
@@ -30,10 +30,13 @@ function DEBUG_LOG(message: string, metadata?: any) {
 export default class Game {
   readonly gameID: string;
   private status: GameStatus;
-  private timeRemaining: number;
   private score: number;
   private readonly players: Player[];
-  private intervalTimeout?: NodeJS.Timeout;
+
+  private countdownTotalTime?: number;
+  private countdownStartTime?: number;
+  private countdownTimeout?: NodeJS.Timeout;
+
   private onUpdate?: (game: Game) => void;
   private onPositionSet?: (player: Player) => void;
 
@@ -43,41 +46,59 @@ export default class Game {
    * @param onUpdate a function to call on each update of the game state
    * @param onPositionSet a function that is called when the player positions are initially set
    */
-  constructor(gameID: string, onUpdate?: (game: Game) => void, onPositionSet?: (player: Player) => void) {
+  constructor(
+    gameID: string,
+    onUpdate?: (game: Game) => void,
+    onPositionSet?: (player: Player) => void
+  ) {
     this.gameID = gameID;
     this.status = GameStatus.InLobby;
-    this.timeRemaining = 0;
     this.score = 0;
     this.onUpdate = onUpdate;
     this.onPositionSet = onPositionSet;
     this.players = [];
-
-    // register the game ticker
-    this.intervalTimeout = undefined;
-    this.registerTicker();
   }
 
   // PRIVATE METHODS
-  private registerTicker() {
-    assert(this.intervalTimeout === undefined, 'double ticker registration');
-    setInterval(this.tick.bind(this), 1000);
+  private registerCountdown(sec: number) {
+    assert(this.countdownTimeout === undefined, 'double ticker registration');
+    this.countdownStartTime = Date.now();
+    this.countdownTotalTime = sec * 1000;
+    this.countdownTimeout = setTimeout(this.tick.bind(this), sec * 1000);
   }
 
-  private unregisterTicker() {
+  /**
+   * Checks if the last registered countdown is finished. Return true if finished
+   * false otherwise.
+   */
+  private countdownIsFinished() {
     assert(
-      this.intervalTimeout !== undefined,
+      this.countdownStartTime,
+      'cannot check if finished if start time is undefined'
+    );
+    assert(
+      this.countdownTotalTime,
+      'cannot check if finished if total time is undefined'
+    );
+    return Date.now() - this.countdownStartTime >= this.countdownTotalTime;
+  }
+
+  private unregisterCountdown() {
+    assert(
+      this.countdownTimeout !== undefined,
       "can't unregister a non-existant ticker"
     );
-
-    clearInterval(this.intervalTimeout);
+    clearTimeout(this.countdownTimeout);
+    this.countdownTimeout = undefined;
   }
 
   /**
    * This function should be called every second to update the game state
    */
-  private tick() {
+  tick() {
     switch (this.status) {
       case GameStatus.InLobby:
+        this.cleanup();
         // check if two players are ready
         if (
           this.players.length === 2 &&
@@ -85,46 +106,49 @@ export default class Game {
         ) {
           // start countdown
           DEBUG_LOG('Starting countdown', { gameID: this.gameID });
-          this.timeRemaining = game_settings.ROUND_START_COUNTDOWN;
+          this.registerCountdown(game_settings.ROUND_START_COUNTDOWN);
           this.status = GameStatus.Starting;
           // set all players to not ready
-          this.players.forEach(player => player.ready = false);
+          this.players.forEach((player) => (player.ready = false));
         }
         break;
 
       case GameStatus.Starting:
-        if (this.timeRemaining <= 0) {
+        if (this.countdownIsFinished()) {
+          this.unregisterCountdown();
           // start game
           DEBUG_LOG('Starting game', { gameID: this.gameID });
-          this.timeRemaining = game_settings.ROUND_TIMER;
+          this.registerCountdown(game_settings.ROUND_TIMER);
           this.status = GameStatus.InProgress;
           // set initial positions of players
           const positions = getRandomPositions(Cities.Boston);
-          this.players[0].updatePos(positions[0]);
-          this.players[1].updatePos(positions[1]);
+          this.players[0].pos = positions[0];
+          this.players[1].pos = positions[1];
           // alert onPositionSet
           if (this.onPositionSet) {
             this.onPositionSet(this.players[0]);
-            this.onPositionSet(this.players[1])
+            this.onPositionSet(this.players[1]);
           }
         }
         break;
 
       case GameStatus.InProgress:
-        if (this.timeRemaining <= 0) {
+        if (this.countdownIsFinished()) {
           // loss condition due to running out of time
           DEBUG_LOG('Game loss after running out of time', {
             gameID: this.gameID,
           });
+          this.unregisterCountdown();
           this.status = GameStatus.Loss;
+          this.registerCountdown(1);
         } else {
           assert(
             this.players.length === 2,
             'need two players for game in progress'
           );
           // check if all player positions are defined
-          const player1Pos = this.players[0].getPos();
-          const player2Pos = this.players[1].getPos();
+          const player1Pos = this.players[0].pos;
+          const player2Pos = this.players[1].pos;
           if (player1Pos && player2Pos) {
             // check if win condition is met
             const distance = getDistance(player1Pos, player2Pos);
@@ -133,25 +157,34 @@ export default class Game {
                 gameID: this.gameID,
                 distance,
               });
+              this.unregisterCountdown();
               this.status = GameStatus.Win;
+              this.registerCountdown(1);
               // calculate score
-              this.score += this.timeRemaining;
+              this.score += Math.floor(
+                (Date.now() - this.countdownStartTime!) / 1000
+              );
             }
           }
         }
         break;
 
       case GameStatus.Win:
-        this.status = GameStatus.InLobby;
+        if (this.countdownIsFinished()) {
+          this.cleanup();
+          this.status = GameStatus.InLobby;
+          this.registerCountdown(1);
+        }
         break;
 
       case GameStatus.Loss:
-        this.status = GameStatus.InLobby;
+        if (this.countdownIsFinished()) {
+          this.cleanup();
+          this.status = GameStatus.InLobby;
+          this.registerCountdown(1);
+        }
         break;
     }
-
-    // update time
-    this.timeRemaining--;
 
     // call registered function if game state is updated
     if (this.onUpdate) {
@@ -165,11 +198,20 @@ export default class Game {
    * Returns the GameStatusData object, useful for sending through Socket.io
    */
   getGameStatusData(): IGameStatusData {
+    this.tick();
+    var timeRemaining;
+    if (this.countdownTimeout) {
+      const elapsedTime = Date.now() - this.countdownStartTime!;
+      timeRemaining = (this.countdownTotalTime! - elapsedTime) / 1000
+    } else {
+      timeRemaining = 0
+    }
+
     const gameStatus = {
       status: this.status,
-      timeRemaining: this.timeRemaining,
+      timeRemaining,
       score: this.score,
-      players: this.players.map((player) => player.getPlayerData())
+      players: this.players.map((player) => player.getPlayerData()),
     };
     return gameStatus;
   }
@@ -180,6 +222,9 @@ export default class Game {
    */
   addPlayer(player: Player) {
     assert(this.players.length < 2, 'cannot add more than 2 players');
+    player.registerOnUpdate(() => {
+      this.tick(); // update game state if player updates
+    });
     this.players.push(player);
   }
 
@@ -193,10 +238,12 @@ export default class Game {
 
   /**
    * Cleans up the object by stopping any existing interval timers.
-   * 
+   *
    * This should be called when all players have disconnected from a game
    */
   cleanup() {
-    this.unregisterTicker();
+    if (this.countdownTimeout) {
+      this.unregisterCountdown();
+    }
   }
 }
