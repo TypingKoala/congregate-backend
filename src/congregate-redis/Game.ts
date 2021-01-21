@@ -19,9 +19,7 @@ const logger = winston.loggers.get('server');
  * @param message the message to log
  */
 function DEBUG_LOG(message: string, metadata?: any) {
-  if (game_settings.DEBUG_MESSAGES) {
-    logger.log('debug', message, metadata);
-  }
+    logger.info(message, metadata);
 }
 
 /**
@@ -72,6 +70,7 @@ export default class Game {
    * false otherwise.
    */
   private countdownIsFinished() {
+    const EPSILON = 100 // in ms
     assert(
       this.countdownStartTime,
       'cannot check if finished if start time is undefined'
@@ -80,7 +79,7 @@ export default class Game {
       this.countdownTotalTime,
       'cannot check if finished if total time is undefined'
     );
-    return Date.now() - this.countdownStartTime >= this.countdownTotalTime;
+    return Date.now() - this.countdownStartTime >= this.countdownTotalTime - EPSILON;
   }
 
   private unregisterCountdown() {
