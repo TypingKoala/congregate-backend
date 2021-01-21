@@ -71,6 +71,7 @@ describe('Game', () => {
 
     // advance timer
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
   });
@@ -95,9 +96,9 @@ describe('Game', () => {
 
     // advance timer
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
-
     expect(player1.pos).toBeDefined();
     expect(player2.pos).toBeDefined();
   });
@@ -126,8 +127,7 @@ describe('Game', () => {
     expect(onPositionSetMock.mock.calls.length).toBe(0);
 
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-    game.getGameStatusData(); // force tick
-
+    game.tick();
     expect(player1.pos).toBeDefined();
     expect(player2.pos).toBeDefined();
     expect(onPositionSetMock.mock.calls.length).toBe(2);
@@ -163,9 +163,10 @@ describe('Game', () => {
 
     // advance timer to in progress
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-    game.getGameStatusData()
+    game.tick();
     // advance timer to loss
     currentTime += game_settings.ROUND_TIMER * 1000;
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.Loss);
   });
@@ -188,12 +189,13 @@ describe('Game', () => {
 
     // advance timer to in progress
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-    game.getGameStatusData()
+    game.tick();
     // advance timer to loss
     currentTime += game_settings.ROUND_TIMER * 1000;
-    game.getGameStatusData()
+    game.tick();
     // advance to next tick
     currentTime += 1000;
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InLobby);
   });
@@ -216,7 +218,7 @@ describe('Game', () => {
 
     // advance timer to in progress
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
 
@@ -252,7 +254,7 @@ describe('Game', () => {
 
     // advance timer to in progress
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
 
@@ -288,7 +290,7 @@ describe('Game', () => {
 
     // advance timer to in progress
     currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
-
+    game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
 

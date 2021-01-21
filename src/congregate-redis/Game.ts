@@ -198,7 +198,6 @@ export default class Game {
    * Returns the GameStatusData object, useful for sending through Socket.io
    */
   getGameStatusData(): IGameStatusData {
-    this.tick();
     var timeRemaining;
     if (this.countdownTimeout) {
       const elapsedTime = Date.now() - this.countdownStartTime!;

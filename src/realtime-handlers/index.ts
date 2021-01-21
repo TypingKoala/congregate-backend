@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io';
 import { registerDisconnectHandler } from './disconnect';
 import { registerPingHandler } from './ping';
+import { registerPlayerReadyHandler } from './playerReady';
 
 /**
  * Registers the event handlers for an incoming client Socket.IO connection
@@ -11,4 +12,5 @@ import { registerPingHandler } from './ping';
 export const registerRealtimeHandlers = (socket: Socket) => {
   registerPingHandler(socket);
   registerDisconnectHandler(socket);
+  registerPlayerReadyHandler(socket);
 };

@@ -17,7 +17,9 @@ interface ISocketQuery {
 }
 
 export interface IGameSocket extends ISocketAuthenticated {
-  gameID?: string;
+  gameID?: string
+  game?: Game
+  player?: Player
 }
 
 export const joinRoom = (socket: IGameSocket, gameID: string) => {
@@ -25,17 +27,19 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   socket.join(gameID);
   socket.gameID = gameID;
 
-  // if (!activeGames.has(gameID)) {
-  //   logger.info('Adding game', { gameID })
-  //   activeGames.add(gameID);
-  //   games[gameID] = new Game(gameID, (game) => {
-  //     io.to(gameID).emit('gameStatus', game.getGameStatusData());
-  //   }, (player) => {
-      
-  //   })
-  // }
-  // const player = new Player(socket.user.name, socket.user.sub, socket);
-  // games[gameID].addPlayer(player);
+  if (!activeGames.has(gameID)) {
+    logger.info('Adding game', { gameID })
+    activeGames.add(gameID);
+    games[gameID] = new Game(gameID, (game) => {
+      io.to(gameID).emit('gameStatus', game.getGameStatusData());
+    }, (player) => {
+      player.socket?.emit('initialPosition', { pos: player.pos })
+    })
+  }
+  const player = new Player(socket.user.name, socket.user.sub, socket);
+  games[gameID].addPlayer(player);
+  socket.game = games[gameID];
+  socket.player = player;
 };
 
 export const matchAndJoin = (socket: Socket, next: any) => {
