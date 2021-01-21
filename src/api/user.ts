@@ -8,7 +8,7 @@ export const isUserJWTPayload = (obj: any) => {
   try {
     return (
       typeof obj.sub === 'string' &&
-      (obj.role === 'admin' || obj.role === 'normal')
+      (obj.role === 'admin' || obj.role === 'normal' || obj.role === 'anonymous')
     );
   } catch {
     return false;
