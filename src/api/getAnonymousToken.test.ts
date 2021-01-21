@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import app from '../app';
 import { generateAnonymousToken } from './getAnonymousToken';
 import { assert } from 'console';
+import { IUserJWTPayload } from './user';
 
 describe('generateAnonymousToken()', () => {
   it('is a valid signed jwt', () => {
@@ -28,6 +29,16 @@ describe('GET /api/getAnonymousToken', () => {
       .get('/api/getAnonymousToken')
       .then((response) => {
         expect(Object.keys(response.body)).toContain('token');
+        done();
+      })
+      .catch((err) => done(err));
+  });
+  it('sets the token role as anonymous', (done) => {
+    request(app)
+      .get('/api/getAnonymousToken')
+      .then((response) => {
+        const payload: IUserJWTPayload = <IUserJWTPayload>jwt.decode(response.body.token);
+        expect(payload.role).toBe('anonymous');
         done();
       })
       .catch((err) => done(err));

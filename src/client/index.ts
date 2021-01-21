@@ -11,13 +11,10 @@ const logger = winston.loggers.get('client');
 dotenv.config();
 
 // Constants
-const BACKEND_URL = 'http://localhost:4200';
+const BACKEND_URL = 'http://j.jbui.me:4400';
 
 // Socket.io config
 const socket = io(BACKEND_URL, {
-  query: {
-    gameID: "hello"
-  },
   // @ts-ignore
   auth: {
     token: generateAnonymousToken()

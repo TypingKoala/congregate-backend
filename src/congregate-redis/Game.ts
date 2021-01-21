@@ -35,7 +35,7 @@ export default class Game {
   private readonly players: Player[];
   private intervalTimeout?: NodeJS.Timeout;
   private onUpdate?: (game: Game) => void;
-  private onPositionSet?: () => void;
+  private onPositionSet?: (player: Player) => void;
 
   /**
    *
@@ -43,7 +43,7 @@ export default class Game {
    * @param onUpdate a function to call on each update of the game state
    * @param onPositionSet a function that is called when the player positions are initially set
    */
-  constructor(gameID: string, onUpdate?: (game: Game) => void, onPositionSet?: () => void) {
+  constructor(gameID: string, onUpdate?: (game: Game) => void, onPositionSet?: (player: Player) => void) {
     this.gameID = gameID;
     this.status = GameStatus.InLobby;
     this.timeRemaining = 0;
@@ -60,8 +60,7 @@ export default class Game {
   // PRIVATE METHODS
   private registerTicker() {
     assert(this.intervalTimeout === undefined, 'double ticker registration');
-
-    this.intervalTimeout = setInterval(this.tick.bind(this), 1000);
+    setInterval(this.tick.bind(this), 1000);
   }
 
   private unregisterTicker() {
@@ -104,7 +103,10 @@ export default class Game {
           this.players[0].updatePos(positions[0]);
           this.players[1].updatePos(positions[1]);
           // alert onPositionSet
-          if (this.onPositionSet) this.onPositionSet();
+          if (this.onPositionSet) {
+            this.onPositionSet(this.players[0]);
+            this.onPositionSet(this.players[1])
+          }
         }
         break;
 

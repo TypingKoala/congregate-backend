@@ -4,6 +4,7 @@ import Game from '../congregate-redis/Game';
 import { ISocketAuthenticated } from './authenticate';
 import { addToMatchmaking } from './matchmaking';
 import { io } from '../app';
+import Player from '../congregate-redis/Player';
 
 require('../logger');
 const logger = winston.loggers.get('server');
@@ -24,15 +25,17 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   socket.join(gameID);
   socket.gameID = gameID;
 
-  if (!activeGames.has(gameID)) {
-    logger.info('Adding game', { gameID })
-    activeGames.add(gameID);
-    games[gameID] = new Game(gameID, (game) => {
-      io.to(gameID).emit('gameStatus', game.getGameStatusData());
-    }, () => {
-      // todo
-    })
-  }
+  // if (!activeGames.has(gameID)) {
+  //   logger.info('Adding game', { gameID })
+  //   activeGames.add(gameID);
+  //   games[gameID] = new Game(gameID, (game) => {
+  //     io.to(gameID).emit('gameStatus', game.getGameStatusData());
+  //   }, (player) => {
+      
+  //   })
+  // }
+  // const player = new Player(socket.user.name, socket.user.sub, socket);
+  // games[gameID].addPlayer(player);
 };
 
 export const matchAndJoin = (socket: Socket, next: any) => {

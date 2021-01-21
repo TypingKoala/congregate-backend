@@ -34,7 +34,15 @@ winston.loggers.add('client', {
   ],
 })
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'test') {
+  const ids = ['client', 'server'];
+  for (let i = 0; i < ids.length; i++) {
+    winston.loggers.get(ids[i]).add(new winston.transports.Console({
+      format: winston.format.simple(),
+      level: 'warn'
+    }));
+  }
+} else if (process.env.NODE_ENV !== 'production') {
   const ids = ['client', 'server'];
   for (let i = 0; i < ids.length; i++) {
     winston.loggers.get(ids[i]).add(new winston.transports.Console({
