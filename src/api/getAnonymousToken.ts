@@ -15,7 +15,7 @@ export const generateAnonymousToken = () => {
     role: 'anonymous',
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET || '', {
+  return jwt.sign(payload, process.env.JWT_SECRET!, {
     audience: process.env.JWT_AUD,
   });
 };

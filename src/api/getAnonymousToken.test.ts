@@ -8,7 +8,7 @@ import { assert } from 'console';
 describe('generateAnonymousToken()', () => {
   it('is a valid signed jwt', () => {
     const token = generateAnonymousToken();
-    const payload = jwt.verify(token, process.env.JWT_SECRET || '', {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!, {
       audience: process.env.JWT_AUD,
     });
     // will error here if incorrect

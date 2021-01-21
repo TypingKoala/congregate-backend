@@ -14,7 +14,7 @@ export function getRandomAdjective(capitalize?: boolean): string {
   if (capitalize) {
     return _.startCase(result);
   } else {
-    return result || "";
+    return result!;
   }
 }
 
@@ -29,6 +29,6 @@ export function getRandomNoun(capitalize?: boolean): string {
   if (capitalize) {
     return _.startCase(result);
   } else {
-    return result || "";
+    return result!;
   }
 }
