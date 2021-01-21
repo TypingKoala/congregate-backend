@@ -42,7 +42,7 @@ a matchmaking session.
 
 ```ts
 // User's game room acquired via REST API
-const gameRoom = 'USER_GAMEROOM';
+const gameID = 'USER_GAMEROOM';
 
 // User's JWT acquired via REST API
 const token = 'USER_TOKEN';
@@ -50,7 +50,7 @@ const token = 'USER_TOKEN';
 // Connect to socket
 const socket = io('http://localhost:4200', {
   query: {
-    gameID
+    gameID // this isn't required if matchmaking
   },
   auth: {
     token
