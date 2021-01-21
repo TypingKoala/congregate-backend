@@ -10,6 +10,10 @@ import { matchAndJoin } from './realtime-middlewares/games';
 // Load environment variables
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw Error('Environment variables not loaded.')
+}
+
 // configure express app
 const app = express();
 app.use(require('cors')());
