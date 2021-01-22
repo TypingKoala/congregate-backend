@@ -1,11 +1,13 @@
-import io from 'socket.io-client';
+const io = require('socket.io-client');
 
 import { AddressInfo } from 'net';
 import { Server } from 'http';
+import { Socket } from 'socket.io';
 import server from '../app';
+import { generateAnonymousToken } from '../api/getAnonymousToken';
 
-let socket1: any;
-let socket2: any;
+export let socket1: Socket;
+export let socket2: Socket;
 let httpServer: Server;
 let httpServerAddr: string | AddressInfo | null;
 
@@ -27,49 +29,53 @@ afterAll((done) => {
   });
 });
 
-// /**
-//  * Disconnect Socket.IO client after each test
-//  */
-// afterEach((done) => {
-//   // Cleanup socket and http server
-//   if (socket1 && socket1.connected) {
-//     socket1.disconnect();
-//   }
-//   if (socket2 && socket2.connected) {
-//     socket2.disconnect();
-//   }
-//   done();
-// });
+/**
+ * Disconnect Socket.IO client after each test
+ */
+afterEach((done) => {
+  // Cleanup socket and http server
+  if (socket1.connected) {
+    socket1.disconnect();
+  }
+  if (socket2.connected) {
+    socket2.disconnect();
+  }
+  done();
+});
 
-function connectToSocket(token: string | undefined) {
-  return new Promise((resolve, reject) => {
+describe('socket.io', () => {
+  test('should successfully complete matchmaking', (done) => {
     if (httpServerAddr != null && typeof httpServerAddr !== 'string') {
-      const auth = token === undefined ? {} : { token };
-
-      var socket = io(`http://localhost:${httpServerAddr.port}`, {
-        reconnectionDelay: 0,
-        forceNew: true,
+      socket1 = io.connect(`http://localhost:${httpServerAddr.port}`, {
+        'reconnection delay': 0,
+        'reopen delay': 0,
+        'force new connection': true,
         transports: ['websocket'],
-        // @ts-ignore
-        auth,
+        auth: {
+          token: generateAnonymousToken(),
+        },
       });
-      socket.on('connect', () => {
-        console.log('connected');
-        resolve(socket);
+      socket2 = io.connect(`http://localhost:${httpServerAddr.port}`, {
+        'reconnection delay': 0,
+        'reopen delay': 0,
+        'force new connection': true,
+        transports: ['websocket'],
+        auth: {
+          token: generateAnonymousToken(),
+        },
       });
-      socket.on('connect_error', (err: any) => {
-        reject();
-      });
-    } else {
-      reject();
-    }
-  });
-}
 
-describe('socket.io:matchmaking', () => {
-  it('should succeed after connecting two clients', async () => {
-    // var socket1 = await connectToSocket('TEST_TOKEN');
-    // var socket2 = await connectToSocket('TEST_TOKEN');
-    expect(true).toBe(true);
+      var totalMatched = 0;
+      socket1.on('matchSuccess', () => {
+        if (++totalMatched === 2) {
+          done();
+        }
+      });
+      socket2.on('matchSuccess', () => {
+        if (++totalMatched === 2) {
+          done();
+        }
+      });
+    }
   });
 });
