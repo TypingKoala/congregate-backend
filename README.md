@@ -9,7 +9,7 @@ This document describes the implemented API of the backend server, along with th
     - [Client Connection](#client-connection)
     - [Event: `ping` and `pong`](#event-ping-and-pong)
     - [Event `matchSuccess`](#event-matchsuccess)
-    - [TODO: Event `message`](#todo-event-message)
+    - [Event `message`](#event-message)
     - [TODO: Event: `gameUpdate`](#todo-event-gameupdate)
     - [Event: `gameStatus`](#event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
@@ -93,8 +93,9 @@ socket.on('matchSuccess', (data: IMatchSuccessData) => {
 })
 ```
 
-### TODO: Event `message`
-Not implemented yet. 
+### Event `message`
+* [Implementation](src/realtime-handlers/message.ts)
+* [Tests](src/realtime-handlers/message.test.ts)
 
 The `message` event will allow the two players to communicate using text chat. A client can emit a `message`, which will result in that message being emitted to the other user to display in the text chat.
 

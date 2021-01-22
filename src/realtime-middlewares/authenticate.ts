@@ -40,12 +40,8 @@ export const authenticateConnection = (socket: Socket, next: any) => {
     const token = auth.token;
 
     // if dev environment, perform mock verification
-    if (process.env.NODE_ENV === 'test') {
-      if (token === 'TEST_TOKEN') {
-        return next();
-      } else {
-        return next(new Error('Invalid test token'));
-      }
+    if (process.env.NODE_ENV === 'test' && token === 'TEST_TOKEN') {
+      return next();
     }
 
     jwt.verify(

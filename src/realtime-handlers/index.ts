@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io';
 import { registerDisconnectHandler } from './disconnect';
+import { registerMessageHandler } from './message';
 import { registerPingHandler } from './ping';
 import { registerPlayerReadyHandler } from './playerReady';
 
@@ -13,4 +14,5 @@ export const registerRealtimeHandlers = (socket: Socket) => {
   registerPingHandler(socket);
   registerDisconnectHandler(socket);
   registerPlayerReadyHandler(socket);
+  registerMessageHandler(socket);
 };
