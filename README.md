@@ -8,10 +8,10 @@ This document describes the implemented API of the backend server, along with th
   - [Type: SocketIO](#type-socketio)
     - [Client Connection](#client-connection)
     - [Event: `ping` and `pong`](#event-ping-and-pong)
-    - [TODO: Event `matchSuccess`](#todo-event-matchsuccess)
+    - [Event `matchSuccess`](#event-matchsuccess)
     - [TODO: Event `message`](#todo-event-message)
     - [TODO: Event: `gameUpdate`](#todo-event-gameupdate)
-    - [TODO: Event: `gameStatus`](#todo-event-gamestatus)
+    - [Event: `gameStatus`](#event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
     - [Event: `initialPosition`](#event-initialposition)
   - [Type: REST API](#type-rest-api)
@@ -74,8 +74,9 @@ socket.on('pong', () => {
 });
 ```
 
-### TODO: Event `matchSuccess`
-Not implemented yet.
+### Event `matchSuccess`
+* [Implementation](src/realtime-middlewares/matchmaking.ts)
+* [Tests](src/realtime-middlewares/matchmaking.test.ts)
 
 This event will be sent from the server to the client once the server has found
 a match in matchmaking. The new Game ID will be sent to the client, and the socket
@@ -152,8 +153,9 @@ socket.emit('gameUpdate', gameUpdateData);
 // response: none
 ```
 
-### TODO: Event: `gameStatus`
-Not implemented yet. 
+### Event: `gameStatus`
+* [Implementation](src/congregate-redis/GameStatus.ts)
+* [Tests](src/congregate-redis/Game.test.ts)
 
 This event is sent from the server to the clients when the game state changes. This
 information is sent about once a second, updating the `timeRemaining` field.
@@ -190,6 +192,8 @@ socket.on('gameStatus', (gameStatus: IGameStatusData) => {
 ```
 
 ### Event: `playerReady`
+* [Implementation](src/realtime-handlers/playerReady.ts)
+
 Note: This event should be only emitted by the client when in the `InLobby` game state.
 
 The client should emit this message once the player is ready to begin. When both players are ready, the game will progress to the `Starting` state.
@@ -204,6 +208,8 @@ socket.emit('playerReady');
 ```
 
 ### Event: `initialPosition`
+* [Implementation](src/realtime-middlewares/games.ts)
+
 When the server generates the intitial positions, it will send the initial position
 of the player once the game starts.
 
@@ -231,7 +237,7 @@ Returns metadata about the API.
 ### Route `/api/getUniqueGameID`
 * [Implementation](src/api/generateGameID.ts)
 * [Tests](src/api/generateGameID.test.ts)
-* 
+
 Returns a unique Game ID (UGID) that can be used to start a new game session.
 
 * Request
