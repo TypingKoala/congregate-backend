@@ -20,7 +20,7 @@ const logger = winston.loggers.get('server');
  * @param message the message to log
  */
 function DEBUG_LOG(message: string, metadata?: any) {
-    logger.info(message, metadata);
+  logger.info(message, metadata);
 }
 
 /**
@@ -56,12 +56,16 @@ export default class Game {
     this.onUpdate = onUpdate;
     this.onPositionSet = onPositionSet;
     this.players = [];
+
+    setInterval(this.garbageCollector, 600000); // attempt to garbage collect every 10 minutes
   }
 
   // PRIVATE METHODS
   private garbageCollector() {
     // check if all players are disconnected
-    if (this.players.every(player => !player.socket || !player.socket.connected)) {
+    if (
+      this.players.every((player) => !player.socket || !player.socket.connected)
+    ) {
       this.cleanup();
     }
   }
@@ -78,7 +82,7 @@ export default class Game {
    * false otherwise.
    */
   private countdownIsFinished() {
-    const EPSILON = 100 // in ms
+    const EPSILON = 100; // in ms
     assert(
       this.countdownStartTime,
       'cannot check if finished if start time is undefined'
@@ -87,7 +91,9 @@ export default class Game {
       this.countdownTotalTime,
       'cannot check if finished if total time is undefined'
     );
-    return Date.now() - this.countdownStartTime >= this.countdownTotalTime - EPSILON;
+    return (
+      Date.now() - this.countdownStartTime >= this.countdownTotalTime - EPSILON
+    );
   }
 
   private unregisterCountdown() {
@@ -208,9 +214,9 @@ export default class Game {
     var timeRemaining;
     if (this.countdownTimeout) {
       const elapsedTime = Date.now() - this.countdownStartTime!;
-      timeRemaining = (this.countdownTotalTime! - elapsedTime) / 1000
+      timeRemaining = (this.countdownTotalTime! - elapsedTime) / 1000;
     } else {
-      timeRemaining = 0
+      timeRemaining = 0;
     }
 
     const gameStatus = {
