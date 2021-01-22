@@ -10,7 +10,7 @@ This document describes the implemented API of the backend server, along with th
     - [Event: `ping` and `pong`](#event-ping-and-pong)
     - [Event `matchSuccess`](#event-matchsuccess)
     - [Event `message`](#event-message)
-    - [TODO: Event: `gameUpdate`](#todo-event-gameupdate)
+    - [Event: `gameUpdate`](#event-gameupdate)
     - [Event: `gameStatus`](#event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
     - [Event: `initialPosition`](#event-initialposition)
@@ -125,7 +125,7 @@ socket.on('message', (messageData: IMessageEventData) => {
 })
 ```
 
-### TODO: Event: `gameUpdate`
+### Event: `gameUpdate`
 Not implemented yet. 
 
 This event should be sent from the client to the server whenever the game state changes on the client-side.

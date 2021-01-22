@@ -1,9 +1,10 @@
 import io from 'socket.io-client';
 import winston from 'winston';
-import readline from 'readline';
 import dotenv from 'dotenv';
+import _ from 'lodash';
 import { generateAnonymousToken } from '../api/getAnonymousToken';
 import { setTimeout } from 'timers';
+import { GameStatus, IGameStatusData, IGameUpdateData } from './types';
 
 require('../logger'); // setup logger
 const logger = winston.loggers.get('client');
@@ -18,8 +19,8 @@ const BACKEND_URL = 'http://j.jbui.me:4000';
 const socket = io(BACKEND_URL, {
   // @ts-ignore
   auth: {
-    token: generateAnonymousToken()
-  }
+    token: generateAnonymousToken(),
+  },
 });
 
 socket.on('connect', () => {
@@ -46,28 +47,28 @@ socket.on('matchSuccess', (data: any) => {
   logger.info('matchSuccess', data);
   setTimeout(() => {
     socket.emit('playerReady');
-  }, 1000)
+  }, 1000);
 });
 
-socket.on('gameStatus', (data: any) => {
+var interval_set = false;
+
+socket.on('gameStatus', (data: IGameStatusData) => {
   logger.info('gameStatus', data);
-})
+
+  if (data.status === GameStatus.InProgress && !interval_set) {
+    interval_set = true;
+    setInterval(() => {
+      const data: IGameUpdateData = {
+        pos: {
+          lat: 10,
+          lng: 20
+        }
+      }
+      socket.emit('gameUpdate', data);
+    }, _.random(500, 2000));
+  }
+});
 
 socket.on('initialPosition', (data: any) => {
   logger.info('initialPosition', data);
-})
-
-function main() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  rl.question('Event name: ', (eventName) => {
-    rl.question('Message: ', (message) => {
-      socket.emit(eventName, message);
-    });
-  });
-}
-
-// main();
+});

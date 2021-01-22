@@ -1,6 +1,6 @@
 'use strict';
 import assert from 'assert';
-import { setTimeout, clearTimeout } from 'timers';
+import { setTimeout, clearTimeout, clearInterval, setInterval } from 'timers';
 
 import { GameStatus, IGameStatusData } from './GameStatus';
 import game_settings from '../game_settings';
@@ -39,6 +39,8 @@ export default class Game {
   private onUpdate?: (game: Game) => void;
   private onPositionSet?: (player: Player) => void;
 
+  private garbageCollectorTimeout: NodeJS.Timeout;
+
   /**
    *
    * @param gameID a unique gameID for the game being played
@@ -57,7 +59,7 @@ export default class Game {
     this.onPositionSet = onPositionSet;
     this.players = [];
 
-    setInterval(this.garbageCollector, 600000); // attempt to garbage collect every 10 minutes
+    this.garbageCollectorTimeout = setInterval(this.garbageCollector, 600000); // attempt to garbage collect every 10 minutes
   }
 
   // PRIVATE METHODS
@@ -66,6 +68,7 @@ export default class Game {
     if (
       this.players.every((player) => !player.socket || !player.socket.connected)
     ) {
+      clearInterval(this.garbageCollectorTimeout);
       this.cleanup();
     }
   }
