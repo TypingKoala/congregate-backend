@@ -10,6 +10,7 @@ import Player from './Player';
 import winston from 'winston';
 import { getDistance } from './Position';
 import { Cities, getRandomPositions } from './Cities';
+import { GameServer } from './Server';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -58,6 +59,13 @@ export default class Game {
   }
 
   // PRIVATE METHODS
+  private garbageCollector() {
+    // check if all players are disconnected
+    if (this.players.every(player => !player.socket || !player.socket.connected)) {
+      this.cleanup();
+    }
+  }
+
   private registerCountdown(sec: number) {
     assert(this.countdownTimeout === undefined, 'double ticker registration');
     this.countdownStartTime = Date.now();
@@ -235,13 +243,17 @@ export default class Game {
   }
 
   /**
-   * Cleans up the object by stopping any existing interval timers.
+   * Cleans up the object by stopping any existing interval timers and removing
+   * from the games pool
    *
-   * This should be called when all players have disconnected from a game
+   * This should be called when all players have disconnected from a game.
    */
   cleanup() {
     if (this.countdownTimeout) {
       this.unregisterCountdown();
+    }
+    if (GameServer.getGame(this.gameID)) {
+      GameServer.deleteGame(this.gameID);
     }
   }
 }
