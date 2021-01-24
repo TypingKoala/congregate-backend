@@ -2,7 +2,6 @@ import winston from 'winston';
 import { IGameSocket } from '../realtime-middlewares/games';
 import { notInGameHandler } from '../realtime-middlewares/gameHandlerError'
 import { Socket } from 'socket.io';
-import { io } from '../app';
 
 require('../logger');
 const logger = winston.loggers.get('server');
@@ -25,6 +24,6 @@ export const registerMessageHandler = (socket: Socket) => {
   socket.on('message', (message: IMessageEventData) => {
     if (!gameSocket.gameID) return notInGameHandler(gameSocket);
     logger.info('Message sent:', { socket: socket.id, message })
-    io.to(gameSocket.gameID).emit('message', message);
+    socket.to(gameSocket.gameID).emit('message', message);
   });
 };
