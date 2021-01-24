@@ -109,11 +109,14 @@ describe('Game', () => {
 
     const onUpdateMock = jest.fn();
     const onPositionSetMock = jest.fn();
-    game = new Game('TinyWalrus', onUpdateMock, onPositionSetMock);
+    game = new Game('TinyWalrus', onUpdateMock);
+    
 
     // add players
     const player1 = new Player('p1', 'p1@example.com');
+    player1.registerOnInitialPosition(onPositionSetMock);
     const player2 = new Player('p2', 'p2@example.com');
+    player2.registerOnInitialPosition(onPositionSetMock);
     game.addPlayer(player1);
     game.addPlayer(player2);
 
