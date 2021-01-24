@@ -10,7 +10,6 @@ import Player from './Player';
 import winston from 'winston';
 import { getDistance } from './Position';
 import { Cities, getRandomPositions } from './Cities';
-import { GameServer } from './Server';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -37,41 +36,25 @@ export default class Game {
   private countdownTimeout?: NodeJS.Timeout;
 
   private onUpdate?: (game: Game) => void;
-  private onPositionSet?: (player: Player) => void;
-
-  private garbageCollectorTimeout: NodeJS.Timeout;
 
   /**
    *
    * @param gameID a unique gameID for the game being played
    * @param onUpdate a function to call on each update of the game state
-   * @param onPositionSet a function that is called when the player positions are initially set
    */
   constructor(
     gameID: string,
-    onUpdate?: (game: Game) => void,
-    onPositionSet?: (player: Player) => void
+    onUpdate?: (game: Game) => void
   ) {
     this.gameID = gameID;
     this.status = GameStatus.InLobby;
     this.score = 0;
     this.onUpdate = onUpdate;
-    this.onPositionSet = onPositionSet;
     this.players = [];
-
-    this.garbageCollectorTimeout = setInterval(this.garbageCollector, 600000); // attempt to garbage collect every 10 minutes
   }
 
   // PRIVATE METHODS
-  private garbageCollector() {
-    // check if all players are disconnected
-    if (
-      this.players.every((player) => !player.socket || !player.socket.connected)
-    ) {
-      clearInterval(this.garbageCollectorTimeout);
-      this.cleanup();
-    }
-  }
+
 
   private registerCountdown(sec: number) {
     assert(this.countdownTimeout === undefined, 'double ticker registration');
@@ -140,11 +123,10 @@ export default class Game {
           const positions = getRandomPositions(Cities.Boston);
           this.players[0].pos = positions[0];
           this.players[1].pos = positions[1];
-          // alert onPositionSet
-          if (this.onPositionSet) {
-            this.onPositionSet(this.players[0]);
-            this.onPositionSet(this.players[1]);
-          }
+          // send position to players
+          this.players[0].sendPosition();
+          this.players[1].sendPosition();
+          DEBUG_LOG('Sending player positions', { players: this.players.map(player => player.pos) });
         }
         break;
 
@@ -236,11 +218,17 @@ export default class Game {
    * @param player the Player object to add
    */
   addPlayer(player: Player) {
-    assert(this.players.length < 2, 'cannot add more than 2 players');
+    // check if player already exists
+    const existingPlayer = this.players.find(p => p.email === player.email);
+    if (!existingPlayer) {
+      this.players.push(player); // add new player
+    }
+
+    assert(this.players.length <= 2, 'cannot have more than 2 players');
     player.registerOnUpdate(() => {
       this.tick(); // update game state if player updates
     });
-    this.players.push(player);
+    player.registerGame(this);
   }
 
   /**
@@ -260,9 +248,6 @@ export default class Game {
   cleanup() {
     if (this.countdownTimeout) {
       this.unregisterCountdown();
-    }
-    if (GameServer.getGame(this.gameID)) {
-      GameServer.deleteGame(this.gameID);
     }
   }
 }

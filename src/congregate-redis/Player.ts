@@ -1,8 +1,14 @@
 import { Socket } from 'socket.io';
+import Game from './Game';
+import { GameStatus } from './GameStatus';
 import { Position } from './Position';
 
+import winston from 'winston';
+require('../logger');
+const logger = winston.loggers.get('server');
+
 export interface IPlayerData {
-  username: string
+  username: string;
 }
 
 export default class Player {
@@ -10,23 +16,37 @@ export default class Player {
   readonly email: string;
   private _ready: boolean;
   private _pos?: Position;
-  socket?: Socket;
   private onUpdate?: (player: Player) => void;
+  private onInitialPosition?: () => void;
+  private game?: Game;
 
-  constructor(username: string, email: string, socket?: Socket) {
+  constructor(
+    username: string,
+    email: string
+  ) {
     this.username = username;
     this.email = email;
     this._ready = false;
-    this.socket = socket;
   }
 
   get ready() {
     return this._ready;
   }
 
-  set ready(status: boolean) {
-    this._ready = status;
-    if (this.onUpdate) this.onUpdate(this)
+  set ready(readyStatus: boolean) {
+    this._ready = readyStatus;
+    if (this.onUpdate) this.onUpdate(this);
+    // check if player is readying to an in-progress game
+    if (
+      this.game &&
+      this.game.getGameStatusData().status === GameStatus.InProgress &&
+      readyStatus
+    ) {
+      logger.info('Rejoining game', { player: this.email, game: this.game.gameID })
+      setTimeout(() => {
+        this.sendPosition();
+      }, 5000);
+    }
   }
 
   get pos() {
@@ -40,11 +60,25 @@ export default class Player {
 
   getPlayerData(): IPlayerData {
     return {
-      username: this.username
-    }
+      username: this.username,
+    };
   }
 
   registerOnUpdate(fn: (player: Player) => void) {
     this.onUpdate = fn;
+  }
+
+  registerOnInitialPosition(fn: () => void) {
+    this.onInitialPosition = fn;
+  }
+
+  registerGame(game: Game) {
+    this.game = game;
+  }
+
+  sendPosition() {
+    if (this.onInitialPosition) {
+      this.onInitialPosition();
+    }
   }
 }

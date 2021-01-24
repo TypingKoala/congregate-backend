@@ -30,15 +30,31 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   if (!game) {
     game = new Game(gameID, (game) => {
       io.to(gameID).emit('gameStatus', game.getGameStatusData());
-    }, (player) => {
-      player.socket?.emit('initialPosition', { pos: player.pos })
     });
     GameServer.addGame(game);
   }
-  const player = new Player(socket.user.name, socket.user.sub, socket);
+  
+  // check if player has already joined previously
+  const existingPlayer = game.getPlayers().find((player) => player.email === socket.user.sub);
+  var player: Player;
+
+  if (existingPlayer) {
+    player = existingPlayer;
+  } else {
+    // create new player
+    player = new Player(socket.user.name, socket.user.sub);
+  }
+  // register onInitialPosition
+  player.registerOnInitialPosition(() => {
+    // specify actions when the player gets an initial position
+    logger.info('Sending position', { pos: player.pos, socket: socket.id });
+    socket.emit('initialPosition', { pos: player.pos });
+  })
+  // register player with game
   game.addPlayer(player);
   socket.game = game;
   socket.player = player;
+  game.tick();
 };
 
 export const matchAndJoin = (socket: Socket, next: any) => {
