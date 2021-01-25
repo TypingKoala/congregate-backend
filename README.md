@@ -19,6 +19,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/getUniqueGameID`](#route-apigetuniquegameid)
     - [Route `/api/getAnonymousToken`](#route-apigetanonymoustoken)
     - [Route `/api/user/sendLoginEmail`](#route-apiusersendloginemail)
+    - [Route `/api/user/token`](#route-apiusertoken)
 
 
 ## Basic User Flow
@@ -292,3 +293,21 @@ include an allowed callback URL.
 where the `{callbackUrl}` is the one initially provided in the POST body, and the `{key}` is the resulting generated key to used when requesting a token.
 
 The callback URL must have an allowed hostname. For example, the hostname `n.jbui.me` is allowed, so a request to the callback URL `http://n.jbui.me/verify` would result in a link to `http://n.jbui.me/verify?token={key}` in the email.
+
+### Route `/api/user/token`
+* [Implementation](src/api/user/token.ts)
+* [Tests](src/api/user/token.test.ts)
+
+Exchange an email verification key for a long-lived token. The front-end should
+prompt the user for a username, and send that along with this request.
+
+* Request
+  * `GET /api/user/token`
+  * Query Params:
+    * `key`: The verification key from the login email
+    * `username`: A non-empty username
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `token` (string): a JWT token to use for authentication
+    * `error` (string): an error message to display to the user if an error occurred
