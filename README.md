@@ -18,6 +18,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route: `/`](#route-)
     - [Route `/api/getUniqueGameID`](#route-apigetuniquegameid)
     - [Route `/api/getAnonymousToken`](#route-apigetanonymoustoken)
+    - [Route `/api/user/sendLoginEmail`](#route-apiusersendloginemail)
 
 
 ## Basic User Flow
@@ -228,7 +229,7 @@ Requests that do not require realtime communication are performed through HTTP.
 Returns metadata about the API.
 
 * Request
-  * Path: `/`
+  * `GET /`
 * Response
   * `Content-Type: application/json`
   * Fields:
@@ -242,7 +243,7 @@ Returns metadata about the API.
 Returns a unique Game ID (UGID) that can be used to start a new game session.
 
 * Request
-  * Path: `/api/getUniqueGameID`
+  * `GET /api/getUniqueGameID`
 * Response
   * `Content-Type: application/json`
   * Fields:
@@ -256,9 +257,38 @@ Returns a unique Game ID (UGID) that can be used to start a new game session.
 Returns a token to be used for Socket IO authentication for an anonymous user.
 
 * Request
-  * Path: `/api/getAnonymousToken`
+  * `GET /api/getAnonymousToken`
 * Response
   * `Content-Type: application/json`
   * Fields:
     * `token` (string): an anonymous token
     * `error` (string): an error message to display to the user if an error occurred
+
+### Route `/api/user/sendLoginEmail`
+* [Implementation](src/api/user/sendLoginEmail.ts)
+* [Tests](src/api/user/sendLoginEmail.test.ts)
+
+Sends an email to a user containing a link to log into Congregate. The request must 
+include an allowed callback URL.
+
+* Request
+  * `POST /api/user/sendLoginEmail`
+  * Body:
+    * `email`: The email to verify
+    * `callbackUrl`: The link to send to the user. This link will include a
+      query parameter `key` that can be used to request a long-lived token.
+      Note that this `key` must be exchanged for a JWT in order to authenticate.
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `success` (boolean): true if successful
+    * `error` (string): an error message to display to the user if an error occurred
+* Side-effects
+  * This action will send an email containing a link to the following address:
+
+```
+{callbackUrl}?key={key}
+```
+where the `{callbackUrl}` is the one initially provided in the POST body, and the `{key}` is the resulting generated key to used when requesting a token.
+
+The callback URL must have an allowed hostname. For example, the hostname `n.jbui.me` is allowed, so a request to the callback URL `http://n.jbui.me/verify` would result in a link to `http://n.jbui.me/verify?token={key}` in the email.

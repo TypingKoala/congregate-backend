@@ -2,10 +2,26 @@ import { Socket } from 'socket.io';
 import winston from 'winston';
 import jwt from 'jsonwebtoken';
 
-import { IUserJWTPayload, isUserJWTPayload } from '../api/user';
-
 require('../logger');
 const logger = winston.loggers.get('server');
+
+export interface IUserJWTPayload {
+  sub: string; // email address
+  name: string;
+  role: 'admin' | 'normal' | 'anonymous';
+}
+
+const isUserJWTPayload = (obj: any) => {
+  try {
+    return (
+      typeof obj.sub === 'string' &&
+      (obj.role === 'admin' || obj.role === 'normal' || obj.role === 'anonymous')
+    );
+  } catch {
+    return false;
+  }
+};
+
 
 interface ISocketAuth {
   token: string;

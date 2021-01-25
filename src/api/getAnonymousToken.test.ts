@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import app from '../app';
 import { generateAnonymousToken } from './getAnonymousToken';
-import { assert } from 'console';
-import { IUserJWTPayload } from './user';
+import { IUserJWTPayload } from '../realtime-middlewares/authenticate';
 
 describe('generateAnonymousToken()', () => {
   it('is a valid signed jwt', () => {

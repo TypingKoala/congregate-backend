@@ -23,7 +23,7 @@ export const registerMessageHandler = (socket: Socket) => {
   const gameSocket = <IGameSocket>socket;
   socket.on('message', (message: IMessageEventData) => {
     if (!gameSocket.gameID) return notInGameHandler(gameSocket);
-    logger.info('Message sent:', { socket: socket.id, message })
+    logger.info('Message sent:', { socket: socket.id, message: JSON.stringify(message) })
     socket.to(gameSocket.gameID).emit('message', message);
   });
 };

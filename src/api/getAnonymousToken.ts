@@ -1,8 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-
-import { IUserJWTPayload } from './user';
+import { IUserJWTPayload } from '../realtime-middlewares/authenticate';
 
 const app = express.Router();
 

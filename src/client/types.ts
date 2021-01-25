@@ -26,3 +26,10 @@ export interface IGameStatusData {
   score: number // cumulative score after each game
   players: IPlayerData[]
 }
+
+// message data object definition
+export interface IMessageEventData {
+  text: string
+  name: string
+  timestamp: number // milliseconds since Unix epoch
+}
