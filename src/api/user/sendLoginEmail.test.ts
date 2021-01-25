@@ -2,7 +2,7 @@ import request from 'supertest';
 
 import app from '../../app';
 
-describe('GET /api/getUniqueGameID', () => {
+describe('POST /api/user/sendLoginEmail', () => {
   it('responds with json', (done) => {
     request(app)
       .post('/api/user/sendLoginEmail')

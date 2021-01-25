@@ -20,8 +20,13 @@ const nodemailerMailgun = nodemailer.createTransport(
   })
 );
 
+export interface IVerificationKey {
+  sub: string,
+  type: 'verify'
+}
+
 const generateVerificationToken = (email: string) => {
-  const payload = {
+  const payload: IVerificationKey = {
     sub: email,
     type: 'verify',
   };
