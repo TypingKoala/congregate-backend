@@ -311,3 +311,13 @@ prompt the user for a username, and send that along with this request.
   * Fields:
     * `token` (string): a JWT token to use for authentication
     * `error` (string): an error message to display to the user if an error occurred
+
+The resulting token is a signed JWT with the following interface: 
+
+```ts
+interface IUserJWTPayload {
+  sub: string; // email address
+  name: string;
+  role: 'admin' | 'normal' | 'anonymous';
+}
+```
