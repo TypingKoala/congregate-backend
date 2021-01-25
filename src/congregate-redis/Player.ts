@@ -19,6 +19,7 @@ export default class Player {
   private onUpdate?: (player: Player) => void;
   private onInitialPosition?: () => void;
   private game?: Game;
+  private socket?: Socket;
 
   constructor(
     username: string,
@@ -80,5 +81,13 @@ export default class Player {
     if (this.onInitialPosition) {
       this.onInitialPosition();
     }
+  }
+
+  registerSocket(socket: Socket) {
+    this.socket = socket;
+  }
+
+  isConnected() {
+    return this.socket && this.socket.connected;
   }
 }

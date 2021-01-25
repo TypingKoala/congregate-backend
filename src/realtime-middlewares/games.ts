@@ -50,6 +50,7 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
     logger.info('Sending position', { pos: player.pos, socket: socket.id });
     socket.emit('initialPosition', { pos: player.pos });
   })
+  player.registerSocket(socket);
   // register player with game
   game.addPlayer(player);
   socket.game = game;
