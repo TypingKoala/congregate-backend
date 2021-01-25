@@ -1,14 +1,30 @@
 import express from 'express';
 import { query, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
+import { BooleanLiteral } from 'typescript';
+import User from '../../models/User';
 import { IUserJWTPayload } from '../../realtime-middlewares/authenticate';
 import { IVerificationKey } from './sendLoginEmail';
 
 const app = express.Router();
 
-const generateUserToken = (key: string, username: string): boolean | string => {
+interface IUserToken {
+  success: boolean
+  token?: string
+  payload?: IUserJWTPayload
+}
+
+const generateUserToken = (key: string, username: string): IUserToken => {
   if (process.env.NODE_ENV === 'test') {
-    return 'TEST_TOKEN'
+    return {
+      success: true,
+      token: 'TEST_TOKEN',
+      payload: {
+        sub: 'test@test.com',
+        name: 'test',
+        role: 'normal'
+      }
+    }
   };
   // validate key
   let decoded;
@@ -24,12 +40,18 @@ const generateUserToken = (key: string, username: string): boolean | string => {
       name: username,
       role: 'normal',
     };
-    return jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
       audience: process.env.JWT_AUD,
       expiresIn: '2w',
     });
+
+    return {
+      success: true,
+      token,
+      payload: tokenPayload
+    }
   } catch {
-    return false;
+    return { success: false };
   }
 };
 
@@ -47,11 +69,21 @@ app.get(
     if (!errors.isEmpty()) {
       return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
     }
-    const token = generateUserToken(req.query!.key, req.query!.username);
-    if (!token) {
+
+    const result = generateUserToken(req.query!.key, req.query!.username);
+    if (!result.success) {
       return res.json({ error: 'invalid key' });
     }
-    return res.json({ token });
+
+    // create user in database
+    if (process.env.NODE_ENV !== 'test') {
+      User.create({
+        email: result.payload?.sub,
+        username: req.query!.username
+      })  
+    }
+
+    return res.json({ token: result.token });
   }
 );
 

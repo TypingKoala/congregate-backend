@@ -19,9 +19,6 @@ class Server {
 
   // PRIVATE METHODS
   private garbageCollect() {
-    // print currently active games
-
-
     const newActiveGames: Set<string> = new Set();
     const newGames: Record<string, Game> = {};
 
@@ -30,7 +27,7 @@ class Server {
     // only add games that have at least one player connected
     this.activeGames.forEach((gameID, _gameID, _set) => {
       const players = this.games[gameID].getPlayers();
-      if (players.some(player => player.isConnected())) {
+      if (players.some((player) => player.isConnected())) {
         newActiveGames.add(gameID);
         newGames[gameID] = this.games[gameID];
         connectedGames.push(gameID);
@@ -39,7 +36,10 @@ class Server {
       }
     });
 
-    logger.info(`Garbage collected ${this.activeGames.size - newActiveGames.size} games`, { removedGames, connectedGames });
+    logger.info(
+      `Garbage collected ${this.activeGames.size - newActiveGames.size} games`,
+      { removedGames, connectedGames }
+    );
 
     // replace fields on server
     this.activeGames = newActiveGames;

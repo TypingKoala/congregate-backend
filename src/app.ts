@@ -1,17 +1,38 @@
 import express, { NextFunction, Request, Response } from 'express';
 import http from 'http';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 import { registerRealtimeHandlers } from './realtime-handlers';
 import { Server, Socket } from 'socket.io';
 import { authenticateConnection } from './realtime-middlewares';
 import { matchAndJoin } from './realtime-middlewares/games';
 
+// Setup logging
+import winston from 'winston';
+require('./logger');
+const logger = winston.loggers.get('server');
+
 // Load environment variables
 dotenv.config();
 
 if (!process.env.JWT_SECRET) {
-  throw Error('Environment variables not loaded.')
+  throw Error('Environment variables not loaded.');
+}
+
+// connect to database
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.MONGODB_CONN_STR!, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  const db = mongoose.connection;
+  db.on('error', () => {
+    logger.error('Unable to connect to database.')
+  });
+  db.on('open', () => {
+    logger.info('Connected to database.')
+  })
 }
 
 // configure express app
@@ -24,12 +45,12 @@ app.use('/api', require('./api'));
 
 // 404 express error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({ "error": "This route is invalid." })
+  res.status(404).json({ error: 'This route is invalid.' });
 });
 
 // 500 express error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  res.json({ "error": "An unknown error occured." })
+  res.json({ error: 'An unknown error occured.' });
 });
 
 const server = http.createServer(app);
