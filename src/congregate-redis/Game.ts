@@ -199,18 +199,34 @@ export default class Game {
         break;
 
       case GameStatus.Win:
-        if (this.countdownIsFinished()) {
-          this.cleanup();
-          this.status = GameStatus.InLobby;
-          this.registerCountdown(1);
+        this.cleanup();
+        // check if two players are ready
+        if (
+          this.players.length === 2 &&
+          this.players.every((player) => player.ready)
+        ) {
+          // start countdown
+          DEBUG_LOG('Starting countdown', { gameID: this.gameID });
+          this.registerCountdown(game_settings.ROUND_START_COUNTDOWN);
+          this.status = GameStatus.Starting;
+          // set all players to not ready
+          this.players.forEach((player) => (player.ready = false));
         }
         break;
 
       case GameStatus.Loss:
-        if (this.countdownIsFinished()) {
-          this.cleanup();
-          this.status = GameStatus.InLobby;
-          this.registerCountdown(1);
+        this.cleanup();
+        // check if two players are ready
+        if (
+          this.players.length === 2 &&
+          this.players.every((player) => player.ready)
+        ) {
+          // start countdown
+          DEBUG_LOG('Starting countdown', { gameID: this.gameID });
+          this.registerCountdown(game_settings.ROUND_START_COUNTDOWN);
+          this.status = GameStatus.Starting;
+          // set all players to not ready
+          this.players.forEach((player) => (player.ready = false));
         }
         break;
     }

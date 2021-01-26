@@ -174,7 +174,7 @@ describe('Game', () => {
     expect(gameStatus).toBe(GameStatus.Loss);
   });
 
-  it('returns to lobby after loss', () => {
+  it('stays in loss state after loss', () => {
     var currentTime = Date.now();
     jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
 
@@ -200,7 +200,7 @@ describe('Game', () => {
     currentTime += 1000;
     game.tick();
     var gameStatus = game.getGameStatusData().status;
-    expect(gameStatus).toBe(GameStatus.InLobby);
+    expect(gameStatus).toBe(GameStatus.Loss);
   });
 
   it('results in a win if both players are close enough', () => {
