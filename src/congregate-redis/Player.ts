@@ -41,13 +41,14 @@ export default class Player {
     // check if player is readying to an in-progress game
     if (
       this.game &&
-      this.game.getGameStatusData().status === GameStatus.InProgress &&
+      this._pos &&
       readyStatus
     ) {
       logger.info('Rejoining game', { player: this.email, game: this.game.gameID })
       setTimeout(() => {
         this.sendPosition();
-      }, 5000);
+        this.game?.tick();
+      }, 1000);
     }
   }
 

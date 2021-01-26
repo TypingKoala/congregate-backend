@@ -10,6 +10,7 @@ import { matchAndJoin } from './realtime-middlewares/games';
 
 // Setup logging
 import winston from 'winston';
+import { ServerLogger } from './logger';
 require('./logger');
 const logger = winston.loggers.get('server');
 
@@ -50,6 +51,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // 500 express error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  ServerLogger.error(err);
   res.json({ error: 'An unknown error occured.' });
 });
 

@@ -20,6 +20,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/getAnonymousToken`](#route-apigetanonymoustoken)
     - [Route `/api/user/sendLoginEmail`](#route-apiusersendloginemail)
     - [Route `/api/user/token`](#route-apiusertoken)
+    - [Route `/api/user/userInfo`](#route-apiuseruserinfo)
 
 
 ## Basic User Flow
@@ -321,3 +322,21 @@ interface IUserJWTPayload {
   role: 'admin' | 'normal' | 'anonymous';
 }
 ```
+
+### Route `/api/user/userInfo`
+* [Implementation](src/api/user/userInfo.ts)
+
+Get information about a logged-in user. Requires Bearer token authentication.
+
+* Request
+  * `GET /api/user/userInfo`
+  * Headers:
+    * `Authorization`: `Bearer {token}`
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `email` (string): the user's email
+    * `username` (string): the user's current username
+    * `totalGamesPlayed` (number): the total number of games the user has played
+    * `avgScore` (number): the average score of the user
+    * `maxScore` (number): the maximum score of the user

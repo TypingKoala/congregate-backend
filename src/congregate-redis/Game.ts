@@ -182,7 +182,7 @@ export default class Game {
                       // @ts-ignore
                       User.updateOne(
                         { email: player.email },
-                        { $addToSet: { games: game } },
+                        { $addToSet: { games: this.gameID } },
                         {},
                         (err: any, user: IUserModel) => {
                           if (err) ServerLogger.error(err);
