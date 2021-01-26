@@ -2,6 +2,8 @@ import { Socket } from 'socket.io';
 import winston from 'winston';
 import jwt from 'jsonwebtoken';
 
+import User, { IUserModel } from '../models/User';
+
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -15,13 +17,14 @@ const isUserJWTPayload = (obj: any) => {
   try {
     return (
       typeof obj.sub === 'string' &&
-      (obj.role === 'admin' || obj.role === 'normal' || obj.role === 'anonymous')
+      (obj.role === 'admin' ||
+        obj.role === 'normal' ||
+        obj.role === 'anonymous')
     );
   } catch {
     return false;
   }
 };
-
 
 interface ISocketAuth {
   token: string;
@@ -29,6 +32,7 @@ interface ISocketAuth {
 
 export interface ISocketAuthenticated extends Socket {
   user: IUserJWTPayload;
+  dbUser: IUserModel;
 }
 
 /**
@@ -81,9 +85,29 @@ export const authenticateConnection = (socket: Socket, next: any) => {
           return next(err);
         }
 
+        const userJWTPayload = <IUserJWTPayload>decoded;
+
         // success
         (<ISocketAuthenticated>socket).user = <IUserJWTPayload>decoded;
-        next();
+
+        // find user in database if not anonymous
+        if (userJWTPayload.role !== 'anonymous') {
+          User.findOne(
+            { email: userJWTPayload.sub },
+            (err: any, user: IUserModel) => {
+              if (err) logger.error(err);
+              if (!user) {
+                logger.warn('Unable to find user');
+                return next(new Error('Unable to find user'));
+              }
+
+              (<ISocketAuthenticated>socket).dbUser = user;
+              next();
+            }
+          );
+        } else {
+          next();
+        }
       }
     );
   }

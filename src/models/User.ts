@@ -1,4 +1,11 @@
 import mongoose from 'mongoose';
+import { gameSchema, IGameModel } from './Game';
+
+export interface IUserModel {
+  email: string
+  username: string
+  games: [IGameModel]
+}
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -10,7 +17,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  games: [{ score: Number }],
+  games: [gameSchema],
 });
 
 const User = mongoose.model('User', userSchema);

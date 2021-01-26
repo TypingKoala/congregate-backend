@@ -1,6 +1,6 @@
 'use strict';
 import assert from 'assert';
-import { setTimeout, clearTimeout, clearInterval, setInterval } from 'timers';
+import { setTimeout, clearTimeout } from 'timers';
 
 import { GameStatus, IGameStatusData } from './GameStatus';
 import game_settings from '../game_settings';
@@ -10,6 +10,7 @@ import Player from './Player';
 import winston from 'winston';
 import { getDistance } from './Position';
 import { Cities, getRandomPositions } from './Cities';
+import GameModel, { IGameModel } from '../models/Game';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -42,10 +43,7 @@ export default class Game {
    * @param gameID a unique gameID for the game being played
    * @param onUpdate a function to call on each update of the game state
    */
-  constructor(
-    gameID: string,
-    onUpdate?: (game: Game) => void
-  ) {
+  constructor(gameID: string, onUpdate?: (game: Game) => void) {
     this.gameID = gameID;
     this.status = GameStatus.InLobby;
     this.score = 0;
@@ -54,7 +52,6 @@ export default class Game {
   }
 
   // PRIVATE METHODS
-
 
   private registerCountdown(sec: number) {
     assert(this.countdownTimeout === undefined, 'double ticker registration');
@@ -126,7 +123,9 @@ export default class Game {
           // send position to players
           this.players[0].sendPosition();
           this.players[1].sendPosition();
-          DEBUG_LOG('Sending player positions', { players: this.players.map(player => player.pos) });
+          DEBUG_LOG('Sending player positions', {
+            players: this.players.map((player) => player.pos),
+          });
         }
         break;
 
@@ -162,6 +161,25 @@ export default class Game {
               this.score += Math.floor(
                 (Date.now() - this.countdownStartTime!) / 1000
               );
+              // update score in database
+              if (process.env.NODE_ENV !== 'test') {
+                DEBUG_LOG('Adding to database')
+                GameModel.updateOne(
+                  { gameID: this.gameID },
+                  { score: this.score },
+                  {
+                    upsert: true,
+                  },
+                  (err: any, game: any) => {
+                    if (err) logger.error(err);
+                    // register game with all players
+                    this.players.forEach(player => {
+                      // @ts-ignore
+                      player.socket?.dbUser?.games.addToSet(game);
+                    })
+                  }
+                );
+              }
             }
           }
         }
@@ -219,7 +237,7 @@ export default class Game {
    */
   addPlayer(player: Player) {
     // check if player already exists
-    const existingPlayer = this.players.find(p => p.email === player.email);
+    const existingPlayer = this.players.find((p) => p.email === player.email);
     if (!existingPlayer) {
       this.players.push(player); // add new player
     }

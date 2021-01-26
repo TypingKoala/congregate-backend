@@ -4,6 +4,7 @@ import { GameStatus } from './GameStatus';
 import { Position } from './Position';
 
 import winston from 'winston';
+import { IGameSocket } from '../realtime-middlewares/games';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -19,7 +20,7 @@ export default class Player {
   private onUpdate?: (player: Player) => void;
   private onInitialPosition?: () => void;
   private game?: Game;
-  private socket?: Socket;
+  socket?: IGameSocket;
 
   constructor(
     username: string,
@@ -83,7 +84,7 @@ export default class Player {
     }
   }
 
-  registerSocket(socket: Socket) {
+  registerSocket(socket: IGameSocket) {
     this.socket = socket;
   }
 
