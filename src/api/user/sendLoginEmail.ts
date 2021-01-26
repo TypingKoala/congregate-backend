@@ -10,6 +10,7 @@ const app = express.Router();
 // setup nodemailer
 import nodemailer from 'nodemailer';
 import mg from 'nodemailer-mailgun-transport';
+import { ServerLogger } from '../../logger';
 
 const nodemailerMailgun = nodemailer.createTransport(
   mg({
@@ -70,10 +71,19 @@ app.post(
         to: req.body.email,
         subject: 'Connect your email address to Congregate',
         html,
-      });
+      })
+      .then(_ => {
+        res.json({ success: true });
+      })
+      .catch((err) => {
+        ServerLogger.error(err);
+        res.json({ error: "Unable to send email" })
+      })
+    } else {
+      res.json({ success: true });
     }
 
-    res.json({ success: true });
+
   }
 );
 

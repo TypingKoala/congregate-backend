@@ -50,3 +50,5 @@ if (process.env.NODE_ENV === 'test') {
     }));
   }
 }
+
+export const ServerLogger = winston.loggers.get('server');

@@ -11,6 +11,8 @@ import winston from 'winston';
 import { getDistance } from './Position';
 import { Cities, getRandomPositions } from './Cities';
 import GameModel, { IGameModel } from '../models/Game';
+import { ServerLogger } from '../logger';
+import User, { IUserModel } from '../models/User';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -150,20 +152,23 @@ export default class Game {
             // check if win condition is met
             const distance = getDistance(player1Pos, player2Pos);
             if (distance < game_settings.DISTANCE_THRESHOLD) {
+              const timeElapsed = Math.floor(
+                (Date.now() - this.countdownStartTime!) / 1000
+              );
+              const score = game_settings.ROUND_TIMER - timeElapsed;
               DEBUG_LOG('Game victory', {
                 gameID: this.gameID,
                 distance,
+                score
               });
               this.unregisterCountdown();
               this.status = GameStatus.Win;
               this.registerCountdown(1);
               // calculate score
-              this.score += Math.floor(
-                (Date.now() - this.countdownStartTime!) / 1000
-              );
+              this.score += score;
               // update score in database
               if (process.env.NODE_ENV !== 'test') {
-                DEBUG_LOG('Adding to database')
+                DEBUG_LOG('Adding to database');
                 GameModel.updateOne(
                   { gameID: this.gameID },
                   { score: this.score },
@@ -171,12 +176,20 @@ export default class Game {
                     upsert: true,
                   },
                   (err: any, game: any) => {
-                    if (err) logger.error(err);
+                    if (err) ServerLogger.error(err);
                     // register game with all players
-                    this.players.forEach(player => {
+                    this.players.forEach((player) => {
                       // @ts-ignore
-                      player.socket?.dbUser?.games.addToSet(game);
-                    })
+                      User.updateOne(
+                        { email: player.email },
+                        { $addToSet: { games: game } },
+                        {},
+                        (err: any, user: IUserModel) => {
+                          if (err) ServerLogger.error(err);
+                          ServerLogger.info('User updated', {games: user.games});
+                        }
+                      );
+                    });
                   }
                 );
               }

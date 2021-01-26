@@ -1,7 +1,7 @@
 import express from 'express';
 import { query, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
-import { BooleanLiteral } from 'typescript';
+import jwt from 'jsonwebtoken'; 
+import { ServerLogger } from '../../logger';
 import User from '../../models/User';
 import { IUserJWTPayload } from '../../realtime-middlewares/authenticate';
 import { IVerificationKey } from './sendLoginEmail';
@@ -63,7 +63,7 @@ app.get(
   '/token',
   query('key').notEmpty().withMessage('Key is required.'),
   query('username').notEmpty().withMessage('Username cannot be empty.'),
-  (req, res) => {
+  (req, res, next) => {
     // validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -77,13 +77,25 @@ app.get(
 
     // create user in database
     if (process.env.NODE_ENV !== 'test') {
-      User.create({
-        email: result.payload?.sub,
+      User.updateOne({
+        email: result.payload?.sub
+      },
+      {
         username: req.query!.username
-      })  
+      },
+      {
+        upsert: true
+      }, (err, user) => {
+        if (err) {
+          console.error(err);
+          ServerLogger.error(err);
+          return next(err);
+        };
+        return res.json({ token: result.token })
+      });
+    } else {
+      return res.json({ token: result.token });
     }
-
-    return res.json({ token: result.token });
   }
 );
 
