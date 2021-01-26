@@ -19,6 +19,8 @@ class Server {
 
   // PRIVATE METHODS
   private garbageCollect() {
+    if (this.activeGames.size === 0) return;
+
     const newActiveGames: Set<string> = new Set();
     const newGames: Record<string, Game> = {};
 
