@@ -275,6 +275,8 @@ include an allowed callback URL.
 
 * Request
   * `POST /api/user/sendLoginEmail`
+  * Headers:
+    * `Content-Type: application/json`
   * Body:
     * `email`: The email to verify
     * `callbackUrl`: The link to send to the user. This link will include a
@@ -326,7 +328,9 @@ interface IUserJWTPayload {
 ### Route `/api/user/userInfo`
 * [Implementation](src/api/user/userInfo.ts)
 
-Get information about a logged-in user. Requires Bearer token authentication.
+Get information about a logged-in user and update a user's username. 
+
+Requires Bearer token authentication.
 
 * Request
   * `GET /api/user/userInfo`
@@ -340,3 +344,19 @@ Get information about a logged-in user. Requires Bearer token authentication.
     * `totalGamesPlayed` (number): the total number of games the user has played
     * `avgScore` (number): the average score of the user
     * `maxScore` (number): the maximum score of the user
+    * `error` (string): an error message to display to the user
+
+
+* Request
+  * `POST /api/user/userInfo`
+  * Headers:
+    * `Authorization`: `Bearer {token}`
+    * `Content-Type`: `application/json`
+  * Body:
+    * `username`: A new username to set for the user
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `error` (string): An error message to display to the user
+    * `success` (boolean): True if the operation was successful. This field does
+      not appear on an error.
