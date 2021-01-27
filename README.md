@@ -14,6 +14,7 @@ This document describes the implemented API of the backend server, along with th
     - [Event: `gameStatus`](#event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
     - [Event: `initialPosition`](#event-initialposition)
+    - [Event: `requestGameStatus`](#event-requestgamestatus)
   - [Type: REST API](#type-rest-api)
     - [Route: `/`](#route-)
     - [Route `/api/getUniqueGameID`](#route-apigetuniquegameid)
@@ -222,6 +223,15 @@ of the player once the game starts.
 socket.on('initialPosition', (gameUpdateData: IGameUpdateData) => {
   console.log(gameUpdateData);
 });
+```
+
+### Event: `requestGameStatus`
+
+When the client emits this event, the game will send a `gameStatus` event to all
+clients.
+
+```ts
+socket.emit(`requestGameStatus`);
 ```
 
 ## Type: REST API
