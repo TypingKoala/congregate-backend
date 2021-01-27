@@ -1,5 +1,8 @@
-import express from 'express';
 import { getRandomAdjective, getRandomNoun } from '../helpers/randomWords';
+
+import Game from '../models/Game';
+import { ServerLogger } from '../logger';
+import express from 'express';
 
 const app = express.Router();
 
@@ -9,16 +12,22 @@ export function getRandomGameID() {
   );
 }
 
-app.get('/getUniqueGameID', (req, res) => {
-  var gameID = getRandomGameID();
+app.get('/getUniqueGameID', async (req, res) => {
+  var gameID = 'RubberyExaltedWolf';
 
-  // TODO: generate until no collisions
-  const collision = false;
-  while (collision) {
+  var result = await Game.findOne({ gameID });
+  var numAttempts = 1;
+  while (result && numAttempts < 100) {
     var gameID = getRandomGameID();
+    result = await Game.findOne({ gameID });
+    numAttempts++;
   }
 
-  return res.json({ gameID })
-})
+  if (numAttempts === 100) {
+    ServerLogger.warn('GameID exhaustion, required 100 tries to find Game ID');
+  }
+
+  return res.json({ gameID });
+});
 
 export default app;
