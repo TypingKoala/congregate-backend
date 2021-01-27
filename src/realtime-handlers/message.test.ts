@@ -51,7 +51,7 @@ afterEach((done) => {
 });
 
 describe('socket.io', () => {
-  test('should successfully send messages after matchmaking', (done) => {
+  test('should successfully send messages after connecting manually', (done) => {
     expect.assertions(2);
     if (httpServerAddr != null && typeof httpServerAddr !== 'string') {
       socket1 = io.connect(`http://localhost:${httpServerAddr.port}`, {
@@ -62,6 +62,9 @@ describe('socket.io', () => {
         auth: {
           token: generateAnonymousToken(),
         },
+        query: {
+          gameID: 'testgame',
+        },
       });
       socket2 = io.connect(`http://localhost:${httpServerAddr.port}`, {
         'reconnection delay': 0,
@@ -71,6 +74,9 @@ describe('socket.io', () => {
         auth: {
           token: generateAnonymousToken(),
         },
+        query: {
+          gameID: 'testgame',
+        },
       });
 
       const testMessage1: IMessageEventData = {
@@ -79,14 +85,14 @@ describe('socket.io', () => {
         timestamp: Date.now(),
       };
       const testMessage2: IMessageEventData = {
-        text: 'test1',
-        name: 'test1',
+        text: 'test2',
+        name: 'test2',
         timestamp: Date.now(),
       };
-      socket1.on('matchSuccess', () => {
+      socket1.on('connect', () => {
         socket1.emit('message', testMessage1);
       });
-      socket2.on('matchSuccess', () => {
+      socket2.on('connect', () => {
         socket2.emit('message', testMessage2);
       });
 
@@ -95,13 +101,13 @@ describe('socket.io', () => {
       socket1.on('message', (data: IMessageEventData) => {
         expect(data).toEqual(testMessage2);
         if (++totalMatched === 2) {
-          done()
+          done();
         }
       });
       socket2.on('message', (data: IMessageEventData) => {
         expect(data).toEqual(testMessage1);
         if (++totalMatched === 2) {
-          done()
+          done();
         }
       });
     }
