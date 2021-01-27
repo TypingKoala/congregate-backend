@@ -1,7 +1,6 @@
-import request from 'supertest';
-
-import { getRandomGameID } from './generateGameID';
 import app from '../app';
+import { getRandomGameID } from './generateGameID';
+import request from 'supertest';
 
 describe('getRandomGameID()', () => {
   it('returns a string', () => {
@@ -27,4 +26,4 @@ describe('GET /api/getUniqueGameID', () => {
       })
       .catch((err) => done(err));
   });
-})
+});

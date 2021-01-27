@@ -36,7 +36,9 @@ describe('GET /api/getAnonymousToken', () => {
     request(app)
       .get('/api/getAnonymousToken')
       .then((response) => {
-        const payload: IUserJWTPayload = <IUserJWTPayload>jwt.decode(response.body.token);
+        const payload: IUserJWTPayload = <IUserJWTPayload>(
+          jwt.decode(response.body.token)
+        );
         expect(payload.role).toBe('anonymous');
         done();
       })
