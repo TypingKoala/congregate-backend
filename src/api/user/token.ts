@@ -1,6 +1,6 @@
 import express from 'express';
 import { query, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken'; 
+import jwt from 'jsonwebtoken';
 import { ServerLogger } from '../../logger';
 import User from '../../models/User';
 import { IUserJWTPayload } from '../../realtime-middlewares/authenticate';
@@ -9,12 +9,13 @@ import { IVerificationKey } from './sendLoginEmail';
 const app = express.Router();
 
 interface IUserToken {
-  success: boolean
-  token?: string
-  payload?: IUserJWTPayload
+  success: boolean;
+  token?: string;
+  payload?: IUserJWTPayload;
 }
 
 const generateUserToken = (key: string, username: string): IUserToken => {
+  // generate token for test environment
   if (process.env.NODE_ENV === 'test') {
     return {
       success: true,
@@ -22,10 +23,11 @@ const generateUserToken = (key: string, username: string): IUserToken => {
       payload: {
         sub: 'test@test.com',
         name: 'test',
-        role: 'normal'
-      }
-    }
-  };
+        role: 'normal',
+      },
+    };
+  }
+
   // validate key
   let decoded;
   try {
@@ -48,8 +50,8 @@ const generateUserToken = (key: string, username: string): IUserToken => {
     return {
       success: true,
       token,
-      payload: tokenPayload
-    }
+      payload: tokenPayload,
+    };
   } catch {
     return { success: false };
   }
@@ -77,22 +79,24 @@ app.get(
 
     // create user in database
     if (process.env.NODE_ENV !== 'test') {
-      User.updateOne({
-        email: result.payload?.sub
-      },
-      {
-        username: req.query!.username
-      },
-      {
-        upsert: true
-      }, (err, user) => {
-        if (err) {
-          console.error(err);
-          ServerLogger.error(err);
-          return next(err);
-        };
-        return res.json({ token: result.token })
-      });
+      User.updateOne(
+        {
+          email: result.payload?.sub,
+        },
+        {
+          username: req.query!.username,
+        },
+        {
+          upsert: true,
+        },
+        (err, user) => {
+          if (err) {
+            ServerLogger.error(err);
+            return next(err);
+          }
+          return res.json({ token: result.token });
+        }
+      );
     } else {
       return res.json({ token: result.token });
     }

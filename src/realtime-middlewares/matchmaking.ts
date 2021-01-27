@@ -56,7 +56,7 @@ export const addToMatchmaking = (socket: IGameSocket) => {
 export const removeFromMatchmaking = (socket: Socket) => {
   const idx = matchmakingSockets.findIndex((s) => s === socket);
   if (idx !== -1) {
-    logger.info('removed socket from matchmaking', { socket: socket.id });
+    logger.info('Removed socket from matchmaking', { socket: socket.id });
     matchmakingSockets.splice(idx, 1);
   }
 };

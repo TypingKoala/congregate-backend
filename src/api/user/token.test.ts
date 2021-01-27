@@ -1,6 +1,5 @@
-import request from 'supertest';
-
 import app from '../../app';
+import request from 'supertest';
 
 describe('GET /api/user/token', () => {
   it('responds with json', (done) => {

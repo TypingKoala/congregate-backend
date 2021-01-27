@@ -1,16 +1,15 @@
-import Handlebars from 'handlebars';
-import fs from 'fs';
-import express from 'express';
 import { body, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
+
+import Handlebars from 'handlebars';
+import { ServerLogger } from '../../logger';
 import allowedCallbackURLs from './allowedCallbackURLs';
+import express from 'express';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
+import mg from 'nodemailer-mailgun-transport';
+import nodemailer from 'nodemailer';
 
 const app = express.Router();
-
-// setup nodemailer
-import nodemailer from 'nodemailer';
-import mg from 'nodemailer-mailgun-transport';
-import { ServerLogger } from '../../logger';
 
 const nodemailerMailgun = nodemailer.createTransport(
   mg({
@@ -22,8 +21,8 @@ const nodemailerMailgun = nodemailer.createTransport(
 );
 
 export interface IVerificationKey {
-  sub: string,
-  type: 'verify'
+  sub: string;
+  type: 'verify';
 }
 
 const generateVerificationToken = (email: string) => {
@@ -44,17 +43,19 @@ const generateVerificationToken = (email: string) => {
  */
 app.post(
   '/sendLoginEmail',
-  body('email').isEmail(),
-  body('callbackUrl').notEmpty().custom(value => {
-    // validate that the hostname is allowed
-    const url = new URL(value);
-    return allowedCallbackURLs.includes(url.hostname);
-  }),
+  body('email').isEmail().withMessage('Invalid email'),
+  body('callbackUrl')
+    .notEmpty()
+    .custom((value) => {
+      // validate that the hostname is allowed
+      const url = new URL(value);
+      return allowedCallbackURLs.includes(url.hostname);
+    }).withMessage('Invalid callback URL'),
   (req, res) => {
     // validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ error: 'Invalid email address or callback URL' });
+      return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
     }
 
     // create email
@@ -66,24 +67,23 @@ app.post(
     const html = template({ loginURL });
 
     if (process.env.NODE_ENV !== 'test') {
-      nodemailerMailgun.sendMail({
-        from: 'Congregate No-Reply <congregate-no-reply@jbui.me>',
-        to: req.body.email,
-        subject: 'Connect your email address to Congregate',
-        html,
-      })
-      .then(_ => {
-        res.json({ success: true });
-      })
-      .catch((err) => {
-        ServerLogger.error(err);
-        res.json({ error: "Unable to send email" })
-      })
+      nodemailerMailgun
+        .sendMail({
+          from: 'Congregate No-Reply <congregate-no-reply@jbui.me>',
+          to: req.body.email,
+          subject: 'Connect your email address to Congregate',
+          html,
+        })
+        .then((_) => {
+          res.json({ success: true });
+        })
+        .catch((err) => {
+          ServerLogger.error(err);
+          res.json({ error: 'Unable to send email' });
+        });
     } else {
       res.json({ success: true });
     }
-
-
   }
 );
 
