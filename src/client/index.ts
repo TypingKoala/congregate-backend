@@ -1,10 +1,16 @@
-import io from 'socket.io-client';
-import winston from 'winston';
-import dotenv from 'dotenv';
+import {
+  GameStatus,
+  IGameStatusData,
+  IGameUpdateData,
+  IMessageEventData,
+} from './types';
+
 import _ from 'lodash';
+import dotenv from 'dotenv';
 import { generateAnonymousToken } from '../api/getAnonymousToken';
+import io from 'socket.io-client';
 import { setTimeout } from 'timers';
-import { GameStatus, IGameStatusData, IGameUpdateData, IMessageEventData } from './types';
+import winston from 'winston';
 
 require('../logger'); // setup logger
 const logger = winston.loggers.get('client');
@@ -18,7 +24,7 @@ const BACKEND_URL = 'http://j.jbui.me:5000';
 // Socket.io config
 const socket = io(BACKEND_URL, {
   query: {
-    gameID: 'hello'
+    gameID: 'hello',
   },
   // @ts-ignore
   auth: {
@@ -38,10 +44,10 @@ socket.on('connect', () => {
     const messageData: IMessageEventData = {
       text: 'hello',
       name: 'John',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     socket.emit('message', messageData);
-    }, 2000);
+  }, 2000);
 });
 
 socket.on('connect_error', (err: any) => {
@@ -74,9 +80,9 @@ socket.on('gameStatus', (data: IGameStatusData) => {
       const data: IGameUpdateData = {
         pos: {
           lat: 10,
-          lng: 20
-        }
-      }
+          lng: 20,
+        },
+      };
       socket.emit('gameUpdate', data);
     }, _.random(500, 2000));
   }
