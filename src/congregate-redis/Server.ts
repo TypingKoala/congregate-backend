@@ -12,9 +12,11 @@ class Server {
     this.activeGames = new Set();
     this.games = {};
 
-    setInterval(() => {
-      this.garbageCollect();
-    }, 60000);
+    if (process.env.NODE_ENV !== 'test') {
+      setInterval(() => {
+        this.garbageCollect();
+      }, 60000);
+    }
   }
 
   // PRIVATE METHODS
