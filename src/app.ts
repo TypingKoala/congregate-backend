@@ -38,6 +38,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // configure express app
 const app = express();
+app.set('trust proxy', 1);
 app.use(require('cors')());
 app.get('/', (req, res) => {
   res.json({ version: 1 });

@@ -1,6 +1,7 @@
 import { body, validationResult } from 'express-validator';
 
 import Handlebars from 'handlebars';
+import RedisStore from 'rate-limit-redis';
 import { ServerLogger } from '../../logger';
 import allowedCallbackURLs from './allowedCallbackURLs';
 import express from 'express';
@@ -8,6 +9,12 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import mg from 'nodemailer-mailgun-transport';
 import nodemailer from 'nodemailer';
+import rateLimit from 'express-rate-limit';
+import redis from 'redis';
+
+const client = redis.createClient({
+  url: process.env.REDIS_CONN_STR
+});
 
 const app = express.Router();
 
@@ -37,12 +44,41 @@ const generateVerificationToken = (email: string) => {
   });
 };
 
+const sendLoginLimiter_IP = rateLimit({
+  store: new RedisStore({
+    prefix: 'rl-sendLoginEmail-ip:',
+    client,
+    expiry: 30 * 60
+  }),
+  windowMs: 30 * 60 * 1000, // 30 minute window
+  max: 20, // start blocking after 20 requests
+    // @ts-ignore
+  message: { error: 'Too many emails have been sent from this IP.' },
+  statusCode: 200,
+});
+
+const sendLoginLimiter_Email = rateLimit({
+  store: new RedisStore({
+    prefix: 'rl-sendLoginEmail-email:',
+    client,
+    expiry: 60*60
+  }),
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 5, // start blocking after 5 requests
+  // @ts-ignore
+  message: { error: 'Too many emails have been sent to this email.' },
+  statusCode: 200,
+  keyGenerator: (req, res) => req.body.email,
+});
+
 /**
  * This endpoint sends a verification email to the user, which will contain a token
  * that must be used to request a long-lasting token with a username.
  */
 app.post(
   '/sendLoginEmail',
+  sendLoginLimiter_Email,
+  sendLoginLimiter_IP,
   body('email').isEmail().withMessage('Invalid email'),
   body('callbackUrl')
     .notEmpty()
@@ -50,14 +86,14 @@ app.post(
       // validate that the hostname is allowed
       const url = new URL(value);
       return allowedCallbackURLs.includes(url.hostname);
-    }).withMessage('Invalid callback URL'),
+    })
+    .withMessage('Invalid callback URL'),
   (req, res) => {
     // validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
     }
-
     // create email
     const data = fs.readFileSync('src/api/user/emailTemplate.html', 'utf8');
     const template = Handlebars.compile(data);
