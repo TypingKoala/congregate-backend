@@ -91,7 +91,7 @@ app.post(
       // check if username is unique
       User.findOne({ username: req.body.username }, (err: any, user: IUserModel) => {
         // @ts-ignore
-        if (user && user._id !== req.user._id) return res.json({ error: "Username taken "})
+        if (user && user._id !== req.user._id) return res.json({ error: "Username taken" })
 
         // if no conflicts, update the user object with new username
         // @ts-ignore
