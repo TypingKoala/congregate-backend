@@ -4,6 +4,7 @@ import { registerGameUpdateHandler } from './gameUpdate';
 import { registerMessageHandler } from './message';
 import { registerPingHandler } from './ping';
 import { registerPlayerReadyHandler } from './playerReady';
+import { registerRequestGameStatusHandler } from './requestGameStatus';
 
 /**
  * Registers the event handlers for an incoming client Socket.IO connection
@@ -17,4 +18,5 @@ export const registerRealtimeHandlers = (socket: Socket) => {
   registerPlayerReadyHandler(socket);
   registerMessageHandler(socket);
   registerGameUpdateHandler(socket);
+  registerRequestGameStatusHandler(socket);
 };
