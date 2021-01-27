@@ -48,6 +48,7 @@ export default class Player {
       setTimeout(() => {
         this.sendPosition();
         this.game?.tick();
+        this.ready = false;
       }, 1000);
     }
   }
