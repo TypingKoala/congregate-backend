@@ -58,7 +58,7 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   game.tick();
 };
 
-export const matchAndJoin = (socket: Socket, next: any) => {
+export const matchPlayer = (socket: Socket, next: any) => {
   const gameSocket = <IGameSocket>socket;
   gameSocket.gameID = undefined;
 

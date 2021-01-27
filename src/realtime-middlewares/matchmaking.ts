@@ -26,10 +26,6 @@ const matchSocketsToGame = (
     socket2: socket2.id,
     gameID,
   });
-  
-  // connect sockets to the game room
-  joinRoom(socket1, gameID);
-  joinRoom(socket2, gameID);
 
   // emit to each socket info about the new room
   const matchSuccessData: IMatchSuccessData = { gameID };

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { registerRealtimeHandlers } from './realtime-handlers';
 import { Server, Socket } from 'socket.io';
 import { authenticateConnection } from './realtime-middlewares';
-import { matchAndJoin } from './realtime-middlewares/games';
+import { matchPlayer } from './realtime-middlewares/games';
 
 // Setup logging
 import winston from 'winston';
@@ -64,7 +64,7 @@ export const io = new Server(server, {
 
 // Register socket.io middleware
 io.use(authenticateConnection);
-io.use(matchAndJoin);
+io.use(matchPlayer);
 
 // On an incoming socket.io connection, register event handlers
 io.on('connection', (socket: Socket) => {
