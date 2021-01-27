@@ -1,7 +1,7 @@
-import randomLocation from 'random-location';
-import _ from 'lodash';
 import { Position } from './Position';
+import _ from 'lodash';
 import game_settings from '../game_settings';
+import randomLocation from 'random-location';
 
 export interface CityCoords {
   ne_pos: Position;
@@ -9,8 +9,8 @@ export interface CityCoords {
 }
 
 export enum Cities {
-  Boston = "Boston"
-};
+  Boston = 'Boston',
+}
 
 export const city_coords: Record<Cities, CityCoords> = {
   Boston: {
@@ -31,19 +31,25 @@ export const getRandomPositions = (city: Cities): [Position, Position] => {
   const pos1: Position = {
     lat: _.random(bounding_box.sw_pos.lat, bounding_box.ne_pos.lat),
     lng: _.random(bounding_box.sw_pos.lng, bounding_box.ne_pos.lng),
-  }
+  };
 
-  const distance = _.random(game_settings.INIITAL_DISTANCE_LOWER, game_settings.INITIAL_DISTANCE_UPPER);
+  const distance = _.random(
+    game_settings.INIITAL_DISTANCE_LOWER,
+    game_settings.INITIAL_DISTANCE_UPPER
+  );
 
-  const newPoint = randomLocation.randomCircumferencePoint({
-    latitude: pos1.lat,
-    longitude: pos1.lng
-  }, distance);
+  const newPoint = randomLocation.randomCircumferencePoint(
+    {
+      latitude: pos1.lat,
+      longitude: pos1.lng,
+    },
+    distance
+  );
 
   const pos2: Position = {
     lat: newPoint.latitude,
-    lng: newPoint.longitude
+    lng: newPoint.longitude,
   };
 
-  return [pos1, pos2]
+  return [pos1, pos2];
 };

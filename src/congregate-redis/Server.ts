@@ -1,5 +1,5 @@
-import winston from 'winston';
 import Game from './Game';
+import winston from 'winston';
 
 require('../logger');
 const logger = winston.loggers.get('server');

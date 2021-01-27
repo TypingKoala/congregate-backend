@@ -1,8 +1,9 @@
 'use strict';
-import game_settings from '../game_settings';
+
 import Game from './Game';
 import { GameStatus } from './GameStatus';
 import Player from './Player';
+import game_settings from '../game_settings';
 
 var game: Game | undefined;
 
@@ -70,7 +71,7 @@ describe('Game', () => {
     player2.ready = true;
 
     // advance timer
-    currentTime += game_settings.ROUND_START_COUNTDOWN * 1000
+    currentTime += game_settings.ROUND_START_COUNTDOWN * 1000;
     game.tick();
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);
@@ -110,7 +111,6 @@ describe('Game', () => {
     const onUpdateMock = jest.fn();
     const onPositionSetMock = jest.fn();
     game = new Game('TinyWalrus', onUpdateMock);
-    
 
     // add players
     const player1 = new Player('p1', 'p1@example.com');
@@ -145,7 +145,7 @@ describe('Game', () => {
     game.addPlayer(player1);
     game.addPlayer(player2);
 
-    expect(game.getPlayers()).toEqual([player1, player2])
+    expect(game.getPlayers()).toEqual([player1, player2]);
   });
 
   it('results in a loss if time expires', () => {
@@ -227,13 +227,13 @@ describe('Game', () => {
 
     // players basically next to each other
     player1.pos = {
-      lat: 42.35900,
-      lng: -71.093804
-    }
+      lat: 42.359,
+      lng: -71.093804,
+    };
     player2.pos = {
-      lat: 42.35900,
-      lng: -71.093804
-    }
+      lat: 42.359,
+      lng: -71.093804,
+    };
 
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.Win);
@@ -264,12 +264,12 @@ describe('Game', () => {
     // players 45m away from each other
     player1.pos = {
       lat: 42.357977,
-      lng: -71.098399
-    }
+      lng: -71.098399,
+    };
     player2.pos = {
       lat: 42.358147,
-      lng: -71.097893
-    }
+      lng: -71.097893,
+    };
 
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.Win);
@@ -300,12 +300,12 @@ describe('Game', () => {
     // players 55m away from each other
     player1.pos = {
       lat: 42.357977,
-      lng: -71.098399
-    }
+      lng: -71.098399,
+    };
     player2.pos = {
       lat: 42.358183,
-      lng: -71.097789
-    }
+      lng: -71.097789,
+    };
 
     var gameStatus = game.getGameStatusData().status;
     expect(gameStatus).toBe(GameStatus.InProgress);

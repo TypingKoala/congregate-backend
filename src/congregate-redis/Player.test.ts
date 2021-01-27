@@ -1,5 +1,5 @@
-import { Socket } from 'socket.io';
 import Player from './Player';
+import { Socket } from 'socket.io';
 
 describe('Player', () => {
   it('stores the username and email', () => {

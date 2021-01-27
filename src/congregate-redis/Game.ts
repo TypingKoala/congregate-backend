@@ -1,18 +1,19 @@
 'use strict';
-import assert from 'assert';
-import { setTimeout, clearTimeout } from 'timers';
 
-import { GameStatus, IGameStatusData } from './GameStatus';
-import game_settings from '../game_settings';
-import Player from './Player';
-
-// Setup logging
-import winston from 'winston';
-import { getDistance } from './Position';
 import { Cities, getRandomPositions } from './Cities';
 import GameModel, { IGameModel } from '../models/Game';
-import { ServerLogger } from '../logger';
+import { GameStatus, IGameStatusData } from './GameStatus';
 import User, { IUserModel } from '../models/User';
+import { clearTimeout, setTimeout } from 'timers';
+
+import Player from './Player';
+import { ServerLogger } from '../logger';
+import assert from 'assert';
+import game_settings from '../game_settings';
+import { getDistance } from './Position';
+// Setup logging
+import winston from 'winston';
+
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -159,7 +160,7 @@ export default class Game {
               DEBUG_LOG('Game victory', {
                 gameID: this.gameID,
                 distance,
-                score
+                score,
               });
               this.unregisterCountdown();
               this.status = GameStatus.Win;
@@ -186,7 +187,9 @@ export default class Game {
                         {},
                         (err: any, user: IUserModel) => {
                           if (err) ServerLogger.error(err);
-                          ServerLogger.info('User updated', {games: user.games});
+                          ServerLogger.info('User updated', {
+                            games: user.games,
+                          });
                         }
                       );
                     });

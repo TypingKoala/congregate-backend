@@ -1,10 +1,10 @@
-import { Socket } from 'socket.io';
 import Game from './Game';
 import { GameStatus } from './GameStatus';
-import { Position } from './Position';
-
-import winston from 'winston';
 import { IGameSocket } from '../realtime-middlewares/games';
+import { Position } from './Position';
+import { Socket } from 'socket.io';
+import winston from 'winston';
+
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -22,10 +22,7 @@ export default class Player {
   private game?: Game;
   socket?: IGameSocket;
 
-  constructor(
-    username: string,
-    email: string
-  ) {
+  constructor(username: string, email: string) {
     this.username = username;
     this.email = email;
     this._ready = false;
@@ -39,12 +36,11 @@ export default class Player {
     this._ready = readyStatus;
     if (this.onUpdate) this.onUpdate(this);
     // check if player is readying to an in-progress game
-    if (
-      this.game &&
-      this._pos &&
-      readyStatus
-    ) {
-      logger.info('Rejoining game', { player: this.email, game: this.game.gameID })
+    if (this.game && this._pos && readyStatus) {
+      logger.info('Rejoining game', {
+        player: this.email,
+        game: this.game.gameID,
+      });
       setTimeout(() => {
         this.sendPosition();
         this.game?.tick();

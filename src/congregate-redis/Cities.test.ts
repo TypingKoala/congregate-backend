@@ -1,5 +1,6 @@
-import game_settings from '../game_settings';
 import { Cities, getRandomPositions } from './Cities';
+
+import game_settings from '../game_settings';
 import { getDistance } from './Position';
 
 describe('getRandomPositions()', () => {
