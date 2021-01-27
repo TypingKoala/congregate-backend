@@ -1,6 +1,6 @@
 import winston from 'winston';
 import { IGameSocket } from '../realtime-middlewares/games';
-import { notInGameHandler } from '../realtime-middlewares/gameHandlerError'
+import { notInGameHandler } from '../realtime-middlewares/gameHandlerError';
 import { Socket } from 'socket.io';
 
 require('../logger');
@@ -10,9 +10,9 @@ const logger = winston.loggers.get('server');
 interface IGameUpdateData {
   // send current player coordinates
   pos: {
-    lat: number,
-    lng: number
-  }
+    lat: number;
+    lng: number;
+  };
 }
 
 /**
@@ -25,7 +25,7 @@ export const registerGameUpdateHandler = (socket: Socket) => {
   const gameSocket = <IGameSocket>socket;
   socket.on('gameUpdate', (data: IGameUpdateData) => {
     if (!gameSocket.gameID) return notInGameHandler(gameSocket);
-    logger.info('Game update received', { socket: socket.id, data })
+    logger.info('Game update received', { socket: socket.id, data });
     if (gameSocket.player) gameSocket.player.pos = data.pos;
   });
 };
