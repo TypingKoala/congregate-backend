@@ -1,16 +1,16 @@
-import express, { NextFunction, Request, Response } from 'express';
-import http from 'http';
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-
-import { registerRealtimeHandlers } from './realtime-handlers';
 import { Server, Socket } from 'socket.io';
-import { authenticateConnection } from './realtime-middlewares';
-import { matchPlayer } from './realtime-middlewares/games';
+import express, { NextFunction, Request, Response } from 'express';
 
+import { ServerLogger } from './logger';
+import { authenticateConnection } from './realtime-middlewares';
+import dotenv from 'dotenv';
+import http from 'http';
+import { matchPlayer } from './realtime-middlewares/games';
+import mongoose from 'mongoose';
+import { registerRealtimeHandlers } from './realtime-handlers';
 // Setup logging
 import winston from 'winston';
-import { ServerLogger } from './logger';
+
 require('./logger');
 const logger = winston.loggers.get('server');
 
@@ -29,11 +29,11 @@ if (process.env.NODE_ENV !== 'test') {
   });
   const db = mongoose.connection;
   db.on('error', () => {
-    logger.error('Unable to connect to database.')
+    logger.error('Unable to connect to database.');
   });
   db.on('open', () => {
-    logger.info('Connected to database.')
-  })
+    logger.info('Connected to database.');
+  });
 }
 
 // configure express app

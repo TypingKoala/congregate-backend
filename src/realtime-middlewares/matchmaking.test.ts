@@ -3,8 +3,8 @@ const io = require('socket.io-client');
 import { AddressInfo } from 'net';
 import { Server } from 'http';
 import { Socket } from 'socket.io';
-import server from '../app';
 import { generateAnonymousToken } from '../api/getAnonymousToken';
+import server from '../app';
 
 export let socket1: Socket;
 export let socket2: Socket;

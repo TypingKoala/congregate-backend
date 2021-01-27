@@ -15,9 +15,9 @@ interface ISocketQuery {
 }
 
 export interface IGameSocket extends ISocketAuthenticated {
-  gameID?: string
-  game?: Game
-  player?: Player
+  gameID?: string;
+  game?: Game;
+  player?: Player;
 }
 
 export const joinRoom = (socket: IGameSocket, gameID: string) => {
@@ -33,9 +33,11 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
     });
     GameServer.addGame(game);
   }
-  
+
   // check if player has already joined previously
-  const existingPlayer = game.getPlayers().find((player) => player.email === socket.user.sub);
+  const existingPlayer = game
+    .getPlayers()
+    .find((player) => player.email === socket.user.sub);
   var player: Player;
 
   if (existingPlayer) {
@@ -49,7 +51,7 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
     // specify actions when the player gets an initial position
     logger.info('Sending position', { pos: player.pos, socket: socket.id });
     socket.emit('initialPosition', { pos: player.pos });
-  })
+  });
   player.registerSocket(socket);
   // register player with game
   game.addPlayer(player);
@@ -72,7 +74,7 @@ export const matchPlayer = (socket: Socket, next: any) => {
     const gameID = (<ISocketQuery>gameSocket.handshake.query).gameID;
     logger.info('Joining room', {
       socket: socket.id,
-      gameID
+      gameID,
     });
     joinRoom(gameSocket, gameID);
   }

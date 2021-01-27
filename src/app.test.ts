@@ -1,11 +1,11 @@
-import request from 'supertest';
 import app from './app';
+import request from 'supertest';
 
 /**
  * Supertest assertion function to check for connected and version fields
  */
 function hasExpectedFields(res: request.Response) {
-  if (!('version' in res.body)) throw new Error('missing version key')
+  if (!('version' in res.body)) throw new Error('missing version key');
 }
 
 describe('GET /', () => {
@@ -14,8 +14,8 @@ describe('GET /', () => {
       .get('/')
       .expect('Content-Type', /json/)
       .expect(200, done)
-      .expect(hasExpectedFields)
-  })
+      .expect(hasExpectedFields);
+  });
 });
 
 describe('Express app', () => {
@@ -29,5 +29,5 @@ describe('Express app', () => {
         done();
       })
       .catch((err) => done(err));
-  })
+  });
 });

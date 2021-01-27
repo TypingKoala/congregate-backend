@@ -1,7 +1,6 @@
-import io from 'socket.io-client';
-
 import { AddressInfo } from 'net';
 import { Server } from 'http';
+import io from 'socket.io-client';
 import server from '../app';
 
 export let socket: any;
@@ -41,7 +40,7 @@ function connectToSocket(token: string | undefined) {
   return new Promise((resolve, reject) => {
     if (httpServerAddr != null && typeof httpServerAddr !== 'string') {
       const auth = token === undefined ? {} : { token };
-  
+
       socket = io(`http://localhost:${httpServerAddr.port}`, {
         reconnectionDelay: 0,
         forceNew: true,
@@ -58,7 +57,7 @@ function connectToSocket(token: string | undefined) {
     } else {
       reject(true);
     }
-  })
+  });
 }
 
 describe('socket.io:authenticate', () => {

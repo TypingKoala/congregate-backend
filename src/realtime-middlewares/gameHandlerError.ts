@@ -1,5 +1,5 @@
-import winston from 'winston';
 import { IGameSocket } from './games';
+import winston from 'winston';
 require('../logger');
 const logger = winston.loggers.get('server');
 
@@ -8,4 +8,4 @@ export const notInGameHandler = (socket: IGameSocket) => {
     socket: socket.id,
   });
   socket.emit('error', { error: 'Cannot perform action when not in game' });
-}
+};

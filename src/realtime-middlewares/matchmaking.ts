@@ -1,7 +1,8 @@
-import winston from 'winston';
+import { IGameSocket, joinRoom } from './games';
+
 import { Socket } from 'socket.io';
 import { getRandomGameID } from '../api/generateGameID';
-import { IGameSocket, joinRoom } from './games';
+import winston from 'winston';
 
 require('../logger');
 const logger = winston.loggers.get('server');
