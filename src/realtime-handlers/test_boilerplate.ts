@@ -31,15 +31,15 @@ afterAll((done) => {
  * Connect with Socket.IO client before each test
  */
 beforeEach((done) => {
-  if (httpServerAddr != null && typeof(httpServerAddr) !== "string") {
+  if (httpServerAddr != null && typeof httpServerAddr !== 'string') {
     socket = io.connect(`http://localhost:${httpServerAddr.port}`, {
       'reconnection delay': 0,
       'reopen delay': 0,
       'force new connection': true,
       transports: ['websocket'],
       auth: {
-        token: "TEST_TOKEN" // only valid in test environment
-      }
+        token: 'TEST_TOKEN', // only valid in test environment
+      },
     });
     socket.on('connect', () => {
       done();
@@ -54,6 +54,6 @@ afterEach((done) => {
   // Cleanup socket and http server
   if (socket.connected) {
     socket.disconnect();
-  };
+  }
   done();
 });

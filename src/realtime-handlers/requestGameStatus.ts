@@ -1,6 +1,6 @@
 import winston from 'winston';
 import { IGameSocket } from '../realtime-middlewares/games';
-import { notInGameHandler } from '../realtime-middlewares/gameHandlerError'
+import { notInGameHandler } from '../realtime-middlewares/gameHandlerError';
 import { Socket } from 'socket.io';
 
 require('../logger');
@@ -16,7 +16,7 @@ export const registerRequestGameStatusHandler = (socket: Socket) => {
   const gameSocket = <IGameSocket>socket;
   socket.on('requestGameStatus', () => {
     if (!gameSocket.gameID) return notInGameHandler(gameSocket);
-    logger.info('Game status requested', { socket: socket.id })
+    logger.info('Game status requested', { socket: socket.id });
     if (gameSocket.game) gameSocket.game.tick();
   });
 };
