@@ -21,6 +21,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/getAnonymousToken`](#route-apigetanonymoustoken)
     - [Route `/api/user/sendLoginEmail`](#route-apiusersendloginemail)
     - [Route `/api/user/token`](#route-apiusertoken)
+    - [Route `/api/user/register`](#route-apiuserregister)
     - [Route `/api/user/userInfo`](#route-apiuseruserinfo)
 
 
@@ -318,11 +319,39 @@ prompt the user for a username, and send that along with this request.
   * `GET /api/user/token`
   * Query Params:
     * `key`: The verification key from the login email
-    * `username`: A non-empty username
 * Response
   * `Content-Type: application/json`
   * Fields:
-    * `token` (string): a JWT token to use for authentication
+    * `registered` (boolean): whether the user with the key is already registered. If not registered, then
+      the client will need to register using the `/register` endpoint with a username
+    * `token` (string): a JWT token to use for authentication, only given if `registered: true`
+    * `error` (string): an error message to display to the user if an error occurred
+
+The resulting token is a signed JWT with the following interface: 
+
+```ts
+interface IUserJWTPayload {
+  sub: string; // email address
+  name: string;
+  role: 'admin' | 'normal' | 'anonymous';
+}
+```
+
+### Route `/api/user/register`
+* [Implementation](src/api/user/token.ts)
+* [Tests](src/api/user/token.test.ts)
+
+Register a new user with a username
+
+* Request
+  * `GET /api/user/token`
+  * Query Params:
+    * `key`: The verification key from the login email
+    * `username`: A unique username to identify the user
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `token` (string): a JWT token to use for authentication, only given if `registered: true`
     * `error` (string): an error message to display to the user if an error occurred
 
 The resulting token is a signed JWT with the following interface: 

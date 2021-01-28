@@ -2,67 +2,68 @@ import express from 'express';
 import { query, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { ServerLogger } from '../../logger';
-import User from '../../models/User';
+import User, { IUserModel } from '../../models/User';
 import { IUserJWTPayload } from '../../realtime-middlewares/authenticate';
 import { IVerificationKey } from './sendLoginEmail';
 
 const app = express.Router();
 
-interface IUserToken {
-  success: boolean;
-  token?: string;
-  payload?: IUserJWTPayload;
-}
+app.get(
+  '/token',
+  query('key').notEmpty().withMessage('Key is required.'),
+  (req, res, next) => {
+    // validate
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
+    }
 
-const generateUserToken = (key: string, username: string): IUserToken => {
-  // generate token for test environment
-  if (process.env.NODE_ENV === 'test') {
-    return {
-      success: true,
-      token: 'TEST_TOKEN',
-      payload: {
-        sub: 'test@test.com',
-        name: 'test',
-        role: 'normal',
-      },
-    };
+    // validate key
+    let decoded;
+    try {
+      decoded = jwt.verify(req.query!.key, process.env.JWT_SECRET!, {
+        audience: process.env.JWT_AUD,
+      });
+
+      const verificationKey = <IVerificationKey>decoded;
+
+      // check if user is in database
+      User.findOne(
+        { email: verificationKey.sub },
+        (err: any, user: IUserModel) => {
+          if (err) return next(err);
+          if (user) {
+            // get and return a token for the user
+            // generate user token
+            const tokenPayload: IUserJWTPayload = {
+              sub: user.email,
+              name: user.username,
+              role: 'normal',
+            };
+            const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
+              audience: process.env.JWT_AUD,
+              expiresIn: '2w',
+            });
+
+            return res.json({ registered: true, token });
+          } else {
+            // no user
+            return res.json({ registered: false });
+          }
+        }
+      );
+    } catch (err) {
+      return next(err);
+    }
   }
-
-  // validate key
-  let decoded;
-  try {
-    decoded = jwt.verify(key, process.env.JWT_SECRET!, {
-      audience: process.env.JWT_AUD,
-    });
-
-    const verificationKey = <IVerificationKey>decoded;
-    // generate user token
-    const tokenPayload: IUserJWTPayload = {
-      sub: verificationKey.sub,
-      name: username,
-      role: 'normal',
-    };
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
-      audience: process.env.JWT_AUD,
-      expiresIn: '2w',
-    });
-
-    return {
-      success: true,
-      token,
-      payload: tokenPayload,
-    };
-  } catch {
-    return { success: false };
-  }
-};
+);
 
 /**
  * This endpoint will replace a key sent via email with a long-lived token
  * for service authentication.
  */
 app.get(
-  '/token',
+  '/register',
   query('key').notEmpty().withMessage('Key is required.'),
   query('username').notEmpty().withMessage('Username cannot be empty.'),
   (req, res, next) => {
@@ -72,33 +73,40 @@ app.get(
       return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
     }
 
-    const result = generateUserToken(req.query!.key, req.query!.username);
-    if (!result.success) {
-      return res.json({ error: 'invalid key' });
-    }
+    // validate key
+    let decoded;
+    try {
+      decoded = jwt.verify(req.query!.key, process.env.JWT_SECRET!, {
+        audience: process.env.JWT_AUD,
+      });
 
-    // create user in database
-    if (process.env.NODE_ENV !== 'test') {
-      User.updateOne(
-        {
-          email: result.payload?.sub,
-        },
-        {
+      const verificationKey = <IVerificationKey>decoded;
+      // generate user token
+      const tokenPayload: IUserJWTPayload = {
+        sub: verificationKey.sub,
+        name: req.query!.username,
+        role: 'normal',
+      };
+      const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
+        audience: process.env.JWT_AUD,
+        expiresIn: '2w',
+      });
+      // create user in database
+      if (process.env.NODE_ENV !== 'test') {
+        const newUser = new User({
+          email: verificationKey.sub,
           username: req.query!.username,
-        },
-        {
-          upsert: true,
-        },
-        (err, user) => {
-          if (err) {
-            ServerLogger.error(err);
-            return next(err);
-          }
-          return res.json({ token: result.token });
-        }
-      );
-    } else {
-      return res.json({ token: result.token });
+        });
+        newUser.save((err, user) => {
+          if (err) return next(err);
+          return res.json({ token })
+        });
+      } else {
+        // skip database insert in test mode
+        return res.json({ token });
+      }
+    } catch {
+      return res.json({ error: 'invalid key' });
     }
   }
 );
