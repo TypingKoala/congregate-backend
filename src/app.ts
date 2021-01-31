@@ -53,7 +53,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // 500 express error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   ServerLogger.error(err);
-  res.json({ error: 'An unknown error occured.' });
+  res.json({
+    error: 'An unknown error occured.',
+    errors: [
+      {
+        param: 'global',
+        msg: 'An unknown error occured.',
+      },
+    ],
+  });
 });
 
 const server = http.createServer(app);

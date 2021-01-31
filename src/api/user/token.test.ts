@@ -9,16 +9,6 @@ describe('GET /api/user/token', () => {
       .expect(200, done);
   });
 
-  it('returns token if valid key and username', (done) => {
-    request(app)
-      .get('/api/user/token?key=TEST_KEY&username=david')
-      .then((response) => {
-        expect(Object.keys(response.body)).toContain('token');
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
   it('returns error if invalid key and username', (done) => {
     request(app)
       .get('/api/user/token')

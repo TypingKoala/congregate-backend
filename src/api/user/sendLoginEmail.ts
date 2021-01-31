@@ -62,7 +62,7 @@ const sendLoginLimiter_IP = rateLimit({
     ],
   },
   statusCode: 200,
-  skip: (req, res) => req.ip === '::ffff:127.0.0.1',
+  skip: (req, res) => process.env.NODE_ENV === 'test',
 });
 
 const sendLoginLimiter_Email = rateLimit({
@@ -84,7 +84,7 @@ const sendLoginLimiter_Email = rateLimit({
   },
   statusCode: 200,
   keyGenerator: (req, res) => req.body.email,
-  skip: (req, res) => req.ip === '::ffff:127.0.0.1',
+  skip: (req, res) => process.env.NODE_ENV === 'test',
 });
 
 /**

@@ -298,7 +298,7 @@ include an allowed callback URL.
   * Fields:
     * `success` (boolean): true if successful
     * `errors` (array): a list of error objects with at least the following two fields:
-      * `param` (string): The name of the body param that errored (either `email`, `callbackUrl`, or `rate-limit`)
+      * `param` (string): The name of the body param that errored (either `global`, `email`, `callbackUrl`, or `rate-limit`)
       * `msg` (string): A user-readable message about the issue
 * Side-effects
   * If successful, this action will send an email containing a link to the following URL:
@@ -382,7 +382,9 @@ Register a new user with a username
   * `Content-Type: application/json`
   * Fields:
     * `token` (string): a JWT token to use for authentication, only given if `registered: true`
-    * `error` (string): an error message to display to the user if an error occurred
+    * `errors` (array): a list of error objects with at least the following two fields:
+      * `param` (string): The name of the body param that errored (either `global`, `username`, or `key`)
+      * `msg` (string): A user-readable message about the issue
 
 The resulting token is a signed JWT with the following interface: 
 

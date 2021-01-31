@@ -70,7 +70,7 @@ app.get(
     // validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
+      return res.json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     // validate key
@@ -79,35 +79,60 @@ app.get(
       decoded = jwt.verify(req.query!.key, process.env.JWT_SECRET!, {
         audience: process.env.JWT_AUD,
       });
-
-      const verificationKey = <IVerificationKey>decoded;
-      // generate user token
-      const tokenPayload: IUserJWTPayload = {
-        sub: verificationKey.sub,
-        name: req.query!.username,
-        role: 'normal',
-      };
-      const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
-        audience: process.env.JWT_AUD,
-        expiresIn: '2w',
-      });
-      // create user in database
-      if (process.env.NODE_ENV !== 'test') {
-        const newUser = new User({
-          email: verificationKey.sub,
-          username: req.query!.username,
-        });
-        newUser.save((err, user) => {
-          if (err) return next(err);
-          return res.json({ token })
-        });
-      } else {
-        // skip database insert in test mode
-        return res.json({ token });
-      }
     } catch {
-      return res.json({ error: 'invalid key' });
+      // validating the token failed
+      return res.json({
+        errors: {
+          msg: 'Invalid key',
+          param: 'key',
+        },
+      });
     }
+
+    const verificationKey = <IVerificationKey>decoded;
+
+    // check if requested username is available
+    User.findOne(
+      { username: req.query!.username },
+      (err: any, user: IUserModel) => {
+        if (err) return next(err);
+
+        // @ts-ignore
+        if (user) {
+          return res.json({
+            errors: {
+              param: 'username',
+              msg: 'Username is already taken',
+            },
+          });
+        }
+
+        // generate user token
+        const tokenPayload: IUserJWTPayload = {
+          sub: verificationKey.sub,
+          name: req.query!.username,
+          role: 'normal',
+        };
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
+          audience: process.env.JWT_AUD,
+          expiresIn: '2w',
+        });
+        // create user in database
+        if (process.env.NODE_ENV !== 'test') {
+          const newUser = new User({
+            email: verificationKey.sub,
+            username: req.query!.username,
+          });
+          newUser.save((err, user) => {
+            if (err) return next(err);
+            return res.json({ token });
+          });
+        } else {
+          // skip database insert in test mode
+          return res.json({ token });
+        }
+      }
+    );
   }
 );
 
