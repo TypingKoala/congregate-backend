@@ -3,7 +3,6 @@ import winston from 'winston';
 winston.loggers.add('server', {
   level: 'info',
   format: winston.format.combine(
-    winston.format.label({ label: 'server' }),
     winston.format.colorize(),
     winston.format.json()
   ),
@@ -23,7 +22,6 @@ winston.loggers.add('server', {
 winston.loggers.add('client', {
   level: 'info',
   format: winston.format.combine(
-    winston.format.label({ label: 'client' }),
     winston.format.colorize(),
     winston.format.json()
   ),

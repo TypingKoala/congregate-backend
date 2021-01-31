@@ -10,6 +10,9 @@ This document describes the implemented API of the backend server, along with th
     - [Event: `ping` and `pong`](#event-ping-and-pong)
     - [Event `matchSuccess`](#event-matchsuccess)
     - [Event `message`](#event-message)
+    - [Event: `currentPlayers`](#event-currentplayers)
+    - [Event: `playerConnected`](#event-playerconnected)
+    - [Event: `playerDisconnected`](#event-playerdisconnected)
     - [Event: `gameUpdate`](#event-gameupdate)
     - [Event: `gameStatus`](#event-gamestatus)
     - [Event: `playerReady`](#event-playerready)
@@ -124,15 +127,55 @@ socket.emit('message', messageData);
 
 // response: none
 
-// receiving messages from other userss
+// receiving messages from other users
 socket.on('message', (messageData: IMessageEventData) => {
   console.log(messageData);
 })
 ```
 
-### Event: `gameUpdate`
-Not implemented yet. 
+### Event: `currentPlayers`
+The client can emit this event, and the server will respond with a list of player
+usernames that are currently connected to the game.
 
+```ts
+interface ICurrentPlayerData {
+  players: string[] // list of player usernames
+}
+
+// request
+socket.emit('currentPlayers');
+
+// response
+socket.on('currentPlayers', (currentPlayerData: ICurrentPlayerData) => {
+  console.log(currentPlayerData);
+})
+```
+
+### Event: `playerConnected`
+An event emitted by the server when a player connects to the game.
+
+```ts
+interface IPlayerConnectionData {
+  player: string // player username
+}
+
+// on player connection
+socket.on('playerConnected', (connectionData: IPlayerConnectionData) => {
+  console.log(connectionData);
+})
+```
+
+### Event: `playerDisconnected`
+An event emitted by the server when a player disconnects from the game.
+
+```ts
+// on player disconnection
+socket.on('playerDisconnected', (connectionData: IPlayerConnectionData) => {
+  console.log(connectionData);
+})
+```
+
+### Event: `gameUpdate`
 This event should be sent from the client to the server whenever the game state changes on the client-side.
 
 The server will not respond to this event.

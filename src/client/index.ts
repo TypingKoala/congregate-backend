@@ -19,7 +19,7 @@ const logger = winston.loggers.get('client');
 dotenv.config();
 
 // Constants
-const BACKEND_URL = 'http://j.jbui.me:5000';
+const BACKEND_URL = 'http://localhost:5000';
 
 // Socket.io config
 const socket = io(BACKEND_URL, {
@@ -37,7 +37,10 @@ socket.on('connect', () => {
   setTimeout(() => {
     logger.info('Sending ping.');
     socket.emit('ping');
+    socket.emit('currentPlayers');
   }, 500);
+
+
 
   setTimeout(() => {
     // request
@@ -60,6 +63,18 @@ socket.on('hello', () => {
 
 socket.on('pong', () => {
   logger.info('Received pong from backend.');
+});
+
+socket.on('playerConnected', (data: any) => {
+  logger.info('Player connected', data);
+});
+
+socket.on('playerDisconnected', (data: any) => {
+  logger.info('Player disconnected', data);
+});
+
+socket.on('currentPlayers', (data: any) => {
+  logger.info('currentPlayers', data);
 });
 
 socket.on('matchSuccess', (data: any) => {

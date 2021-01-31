@@ -24,6 +24,8 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   logger.info('Joining room', { socket: socket.id, gameID });
   socket.join(gameID);
   socket.gameID = gameID;
+  // emit join message to other game clients
+  socket.to(gameID).emit('playerConnected', { player: socket.user.name })
 
   var game = GameServer.getGame(gameID);
 

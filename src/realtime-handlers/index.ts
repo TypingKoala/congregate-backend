@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import { registerCurrentPlayersHandler } from './currentPlayers';
 import { registerDisconnectHandler } from './disconnect';
 import { registerGameUpdateHandler } from './gameUpdate';
 import { registerMessageHandler } from './message';
@@ -19,4 +20,5 @@ export const registerRealtimeHandlers = (socket: Socket) => {
   registerMessageHandler(socket);
   registerGameUpdateHandler(socket);
   registerRequestGameStatusHandler(socket);
+  registerCurrentPlayersHandler(socket);
 };
