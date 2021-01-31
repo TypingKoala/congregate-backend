@@ -458,8 +458,19 @@ Requires Bearer token authentication.
     * `totalGamesPlayed` (number): the total number of games the user has played
     * `avgScore` (number): the average score of the user
     * `maxScore` (number): the maximum score of the user
+    * `token` (string): a refreshed token for the user
     * `error` (string): an error message to display to the user
 
+```ts
+interface IUserInfo {
+  email: string
+  username: string
+  totalGamesPlayed: number
+  avgScore: number
+  maxScore: number
+  token: string
+}
+```
 
 * Request
   * `POST /api/user/userInfo`

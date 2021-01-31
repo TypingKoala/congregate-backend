@@ -55,6 +55,7 @@ socket.on('connect', () => {
 
 socket.on('connect_error', (err: any) => {
   logger.error(err.message);
+  console.error(err);
 });
 
 socket.on('hello', () => {

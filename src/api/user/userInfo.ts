@@ -1,7 +1,9 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import User, { IUserModel } from '../../models/User';
+import { IUserJWTPayload } from '../../realtime-middlewares/authenticate';
 import { AuthenticateToken } from './tokenAuth';
+import jwt from 'jsonwebtoken';
 
 const app = express.Router();
 
@@ -49,17 +51,39 @@ interface IStatsAggData {
   maxScore: number;
 }
 
+interface IUserInfo {
+  email: string
+  username: string
+  totalGamesPlayed: number
+  avgScore: number
+  maxScore: number
+  token: string
+}
+
 app.get('/userInfo', AuthenticateToken, (req, res) => {
+  // generate user token
+  const tokenPayload: IUserJWTPayload = {
+    // @ts-ignore
+    sub: req.user!.sub,
+    // @ts-ignore
+    name: req.user!.name,
+    role: 'normal',
+  };
+  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
+    audience: process.env.JWT_AUD,
+    expiresIn: '2w',
+  });
+
   // get game statistics
   // @ts-ignore
   const totalGamesPlayed = req.user.games.length;
   // @ts-ignore
   getStatistics(req.user.email).then((stats) => {
     const userStats = <IStatsAggData>stats[0];
-    const avgScore = userStats.avgScore || 0;
-    const maxScore = userStats.maxScore || 0;
+    const avgScore = (userStats && userStats.avgScore) || 0;
+    const maxScore = (userStats && userStats.maxScore) || 0;
 
-    res.json({
+    const result: IUserInfo = {
       // @ts-ignore
       email: req.user!.email,
       // @ts-ignore
@@ -67,7 +91,10 @@ app.get('/userInfo', AuthenticateToken, (req, res) => {
       totalGamesPlayed,
       avgScore,
       maxScore,
-    });
+      token,
+    }
+
+    res.json(result);
   });
 });
 
@@ -87,7 +114,7 @@ app.post(
       { username: req.body.username },
       (err: any, user: IUserModel) => {
         // @ts-ignore
-        if (user && (!user._id.equals(req.user._id))) {
+        if (user && !user._id.equals(req.user._id)) {
           return res.json({ error: 'Username taken' });
         }
         // if no conflicts, update the user object with new username
