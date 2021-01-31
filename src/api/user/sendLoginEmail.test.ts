@@ -29,7 +29,7 @@ describe('POST /api/user/sendLoginEmail', () => {
       .post('/api/user/sendLoginEmail')
       .send({ email: 'test', callbackUrl: 'http://n.jbui.me/verify' })
       .then((response) => {
-        expect(Object.keys(response.body)).toContain('error');
+        expect(Object.keys(response.body)).toContain('errors');
         done();
       })
       .catch((err) => done(err));
@@ -40,7 +40,7 @@ describe('POST /api/user/sendLoginEmail', () => {
       .post('/api/user/sendLoginEmail')
       .send({ callbackUrl: 'http://n.jbui.me/verify' })
       .then((response) => {
-        expect(Object.keys(response.body)).toContain('error');
+        expect(Object.keys(response.body)).toContain('errors');
         done();
       })
       .catch((err) => done(err));
@@ -54,7 +54,7 @@ describe('POST /api/user/sendLoginEmail', () => {
         callbackUrl: 'http://example.com/verify',
       })
       .then((response) => {
-        expect(Object.keys(response.body)).toContain('error');
+        expect(Object.keys(response.body)).toContain('errors');
         done();
       })
       .catch((err) => done(err));

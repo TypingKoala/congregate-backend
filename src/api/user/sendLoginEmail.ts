@@ -13,7 +13,7 @@ import rateLimit from 'express-rate-limit';
 import redis from 'redis';
 
 const client = redis.createClient({
-  url: process.env.REDIS_CONN_STR
+  url: process.env.REDIS_CONN_STR,
 });
 
 const app = express.Router();
@@ -48,27 +48,43 @@ const sendLoginLimiter_IP = rateLimit({
   store: new RedisStore({
     prefix: 'rl-sendLoginEmail-ip:',
     client,
-    expiry: 30 * 60
+    expiry: 30 * 60,
   }),
   windowMs: 30 * 60 * 1000, // 30 minute window
   max: 20, // start blocking after 20 requests
-    // @ts-ignore
-  message: { error: 'Too many emails have been sent from this IP.' },
+  // @ts-ignore
+  message: {
+    errors: [
+      {
+        param: 'rate-limit',
+        msg: 'Too many emails have been sent from this IP',
+      },
+    ],
+  },
   statusCode: 200,
+  skip: (req, res) => req.ip === '::ffff:127.0.0.1',
 });
 
 const sendLoginLimiter_Email = rateLimit({
   store: new RedisStore({
     prefix: 'rl-sendLoginEmail-email:',
     client,
-    expiry: 60*60
+    expiry: 60 * 60,
   }),
   windowMs: 60 * 60 * 1000, // 1 hour window
   max: 5, // start blocking after 5 requests
   // @ts-ignore
-  message: { error: 'Too many emails have been sent to this email.' },
+  message: {
+    errors: [
+      {
+        param: 'email',
+        msg: 'Too many emails have been sent to this email.',
+      },
+    ],
+  },
   statusCode: 200,
   keyGenerator: (req, res) => req.body.email,
+  skip: (req, res) => req.ip === '::ffff:127.0.0.1',
 });
 
 /**
@@ -92,7 +108,7 @@ app.post(
     // validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ error: errors.array({ onlyFirstError: true })[0].msg });
+      return res.json({ errors: errors.array({ onlyFirstError: true }) });
     }
     // create email
     const data = fs.readFileSync('src/api/user/emailTemplate.html', 'utf8');

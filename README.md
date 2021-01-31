@@ -297,9 +297,11 @@ include an allowed callback URL.
   * `Content-Type: application/json`
   * Fields:
     * `success` (boolean): true if successful
-    * `error` (string): an error message to display to the user if an error occurred
+    * `errors` (array): a list of error objects with at least the following two fields:
+      * `param` (string): The name of the body param that errored (either `email`, `callbackUrl`, or `rate-limit`)
+      * `msg` (string): A user-readable message about the issue
 * Side-effects
-  * This action will send an email containing a link to the following address:
+  * If successful, this action will send an email containing a link to the following URL:
 
 ```
 {callbackUrl}?key={key}
@@ -307,6 +309,34 @@ include an allowed callback URL.
 where the `{callbackUrl}` is the one initially provided in the POST body, and the `{key}` is the resulting generated key to used when requesting a token.
 
 The callback URL must have an allowed hostname. For example, the hostname `n.jbui.me` is allowed, so a request to the callback URL `http://n.jbui.me/verify` would result in a link to `http://n.jbui.me/verify?token={key}` in the email.
+
+If an error occurs, a list of error objects will be returned. Here is an example:
+```
+POST /api/user/sendLoginEmail HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+Content-Length: 84
+
+{
+    "email": "my_invalid_email",
+    "callbackUrl": "my_invalid_callback_url"
+}
+```
+
+```
+{
+    "errors": [
+        {
+            "msg": "Invalid email",
+            "param": "email",
+        },
+        {
+            "msg": "Invalid URL: my_invalid_callback_url",
+            "param": "callbackUrl",
+        }
+    ]
+}
+```
 
 ### Route `/api/user/token`
 * [Implementation](src/api/user/token.ts)
