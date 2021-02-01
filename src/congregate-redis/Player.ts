@@ -35,18 +35,18 @@ export default class Player {
   set ready(readyStatus: boolean) {
     this._ready = readyStatus;
     if (this.onUpdate) this.onUpdate(this);
-    // check if player is readying to an in-progress game
-    if (this.game && this._pos && readyStatus) {
-      logger.info('Rejoining game', {
-        player: this.email,
-        game: this.game.gameID,
-      });
-      setTimeout(() => {
-        this.sendPosition();
-        this.game?.tick();
-        this.ready = false;
-      }, 1000);
-    }
+    // // check if player is readying to an in-progress game
+    // if (this.game && this._pos && readyStatus) {
+    //   logger.info('Rejoining game', {
+    //     player: this.email,
+    //     game: this.game.gameID,
+    //   });
+    //   setTimeout(() => {
+    //     this.sendPosition();
+    //     this.game?.tick();
+    //     this.ready = false;
+    //   }, 1000);
+    // }
   }
 
   get pos() {

@@ -57,6 +57,11 @@ export const joinRoom = (socket: IGameSocket, gameID: string) => {
   player.registerSocket(socket);
   // register player with game
   game.addPlayer(player);
+  // if this player is rejoining, send initial position
+  if (existingPlayer) {
+    logger.info('Rejoin: sending position', { pos: player.pos, socket: socket.id })
+    player.sendPosition();
+  }
   socket.game = game;
   socket.player = player;
   game.tick();

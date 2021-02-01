@@ -12,9 +12,12 @@ import nodemailer from 'nodemailer';
 import rateLimit from 'express-rate-limit';
 import redis from 'redis';
 
-const client = redis.createClient({
-  url: process.env.REDIS_CONN_STR,
-});
+var client;
+if (process.env.NODE_ENV !== 'test') {
+  client = redis.createClient({
+    url: process.env.REDIS_CONN_STR,
+  });
+}
 
 const app = express.Router();
 
@@ -45,11 +48,11 @@ const generateVerificationToken = (email: string) => {
 };
 
 const sendLoginLimiter_IP = rateLimit({
-  store: new RedisStore({
+  store: (process.env.NODE_ENV !== 'test' && new RedisStore({
     prefix: 'rl-sendLoginEmail-ip:',
     client,
     expiry: 30 * 60,
-  }),
+  })) || undefined,
   windowMs: 30 * 60 * 1000, // 30 minute window
   max: 20, // start blocking after 20 requests
   // @ts-ignore
@@ -66,11 +69,11 @@ const sendLoginLimiter_IP = rateLimit({
 });
 
 const sendLoginLimiter_Email = rateLimit({
-  store: new RedisStore({
+  store: (process.env.NODE_ENV !== 'test' && new RedisStore({
     prefix: 'rl-sendLoginEmail-email:',
     client,
     expiry: 60 * 60,
-  }),
+  })) || undefined,
   windowMs: 60 * 60 * 1000, // 1 hour window
   max: 5, // start blocking after 5 requests
   // @ts-ignore
