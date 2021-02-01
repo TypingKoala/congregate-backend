@@ -66,7 +66,7 @@ app.get('/userInfo', AuthenticateToken, (req, res) => {
     // @ts-ignore
     sub: req.user!.sub,
     // @ts-ignore
-    name: req.user!.name,
+    name: req.user!.username,
     role: 'normal',
   };
   const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, {
