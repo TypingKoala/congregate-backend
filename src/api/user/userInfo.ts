@@ -64,7 +64,7 @@ app.get('/userInfo', AuthenticateToken, (req, res) => {
   // generate user token
   const tokenPayload: IUserJWTPayload = {
     // @ts-ignore
-    sub: req.user!.sub,
+    sub: req.user!.email,
     // @ts-ignore
     name: req.user!.username,
     role: 'normal',
