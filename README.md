@@ -218,8 +218,14 @@ enum GameStatus {
   Loss = "Loss", // players ran out of time
 }
 
+interface Position {
+    lat: number,
+    lng: number
+}
+
 interface IPlayerData {
-  username: string
+  username: string;
+  pos: Position | undefined;
 }
 
 // game status data object definition
