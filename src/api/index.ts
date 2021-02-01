@@ -10,5 +10,6 @@ app.use(bodyParser.json());
 app.use(generateGameID);
 app.use(getAnonymousToken);
 app.use('/user', require('./user'));
+app.use('/game', require('./game'))
 
 module.exports = app;

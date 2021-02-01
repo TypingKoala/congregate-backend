@@ -26,6 +26,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/user/token`](#route-apiusertoken)
     - [Route `/api/user/register`](#route-apiuserregister)
     - [Route `/api/user/userInfo`](#route-apiuseruserinfo)
+    - [Route `/api/game/leaderboard`](#route-apigameleaderboard)
 
 
 ## Basic User Flow
@@ -491,3 +492,17 @@ interface IUserInfo {
     * `error` (string): An error message to display to the user
     * `success` (boolean): True if the operation was successful. This field does
       not appear on an error.
+
+### Route `/api/game/leaderboard`
+* [Implementation](src/api/game/leaderboard.ts)
+
+Get information about the max score and average score leaderboard
+
+* Request
+  * `GET /api/game/leaderboard`
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `avgLeaderboard` (array): an array of leaderboard entries containing `username` and `avgScore` fields, sorted in descending order by `avgScore`
+    * `maxLeaderboard` (array): an array of leaderboard entries containing `username` and `maxScore` fields, sorted in descending order by `maxScore`
+    * `error` (string): an error message to display to the user
