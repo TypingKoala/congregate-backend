@@ -1,6 +1,6 @@
 'use strict';
 
-import { Cities, getRandomPositions } from './Cities';
+import { Cities, getRandomPositions } from '../cities/randomLocation';
 import GameModel, { IGameModel } from '../models/Game';
 import { GameStatus, IGameStatusData } from './GameStatus';
 import User, { IUserModel } from '../models/User';

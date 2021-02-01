@@ -1,7 +1,12 @@
-import { Position } from './Position';
+import { FeatureCollection, Polygon, Properties } from "@turf/helpers"
+
+import { Position } from '../congregate-redis/Position';
 import _ from 'lodash';
 import game_settings from '../game_settings';
+import polygonize from '@turf/polygonize';
 import randomLocation from 'random-location';
+
+const randomPointsOnPolygon = require('random-points-on-polygon');
 
 export interface CityCoords {
   ne_pos: Position;
@@ -12,25 +17,17 @@ export enum Cities {
   Boston = 'Boston',
 }
 
-export const city_coords: Record<Cities, CityCoords> = {
-  Boston: {
-    ne_pos: {
-      lat: 42.367918,
-      lng: -71.0523,
-    },
-    sw_pos: {
-      lat: 42.332839,
-      lng: -71.099496,
-    },
-  },
+export const city_coords: Record<Cities, FeatureCollection<Polygon, Properties>> = {
+  Boston: require('./boston.json')
 };
 
 export const getRandomPositions = (city: Cities): [Position, Position] => {
   // get first random position
-  const bounding_box = city_coords[city];
+  const polygon = city_coords[city];
+  const randomPoint = randomPointsOnPolygon(1, polygon)[0];
   const pos1: Position = {
-    lat: _.random(bounding_box.sw_pos.lat, bounding_box.ne_pos.lat),
-    lng: _.random(bounding_box.sw_pos.lng, bounding_box.ne_pos.lng),
+    lat: randomPoint.geometry.coordinates[1],
+    lng: randomPoint.geometry.coordinates[0],
   };
 
   const distance = _.random(
