@@ -76,13 +76,13 @@ socket.on('playerDisconnected', (data: any) => {
 
 socket.on('currentPlayers', (data: any) => {
   logger.info('currentPlayers', data);
+  setTimeout(() => {
+    socket.emit('playerReady');
+  }, 1000);
 });
 
 socket.on('matchSuccess', (data: any) => {
   logger.info('matchSuccess', data);
-  setTimeout(() => {
-    socket.emit('playerReady');
-  }, 1000);
 });
 
 var interval_set = false;
