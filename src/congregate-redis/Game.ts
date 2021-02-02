@@ -91,6 +91,11 @@ export default class Game {
     this.countdownTimeout = undefined;
   }
 
+  clearPlayersReady() {
+    this.players[0].ready = false;
+    this.players[1].ready = false;
+  }
+
   /**
    * This function should be called every second to update the game state
    */
@@ -140,6 +145,7 @@ export default class Game {
           });
           this.unregisterCountdown();
           this.status = GameStatus.Loss;
+          this.clearPlayersReady();
           this.registerCountdown(1);
         } else {
           assert(
@@ -164,6 +170,8 @@ export default class Game {
               });
               this.unregisterCountdown();
               this.status = GameStatus.Win;
+              // clear ready state
+              this.clearPlayersReady();
               this.registerCountdown(1);
               // calculate score
               this.score += score;
