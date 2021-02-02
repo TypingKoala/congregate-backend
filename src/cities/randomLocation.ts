@@ -30,7 +30,6 @@ export const getRandomPositions = (city: Cities): [Position, Position] => {
     lng: position_pair[1][0],
   };
 
-  console.log(pos1, pos2);
-
-  return [pos1, pos2];
+  // randomize ordering of pairs
+  return Math.random() > 0.5? [pos1, pos2]: [pos2, pos1];
 };
