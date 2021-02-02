@@ -1,5 +1,5 @@
 export default {
-  ROUND_START_COUNTDOWN: 5, // number of seconds after ready before starting game
+  ROUND_START_COUNTDOWN: 3, // number of seconds after ready before starting game
   ROUND_TIMER: 300, // number of seconds per round
   DISTANCE_THRESHOLD: 50, // distance before declaring victory, in meters
   DEBUG_MESSAGES: true, // print debug messages to server log
