@@ -178,9 +178,21 @@ export default class Game {
               // update score in database
               if (process.env.NODE_ENV !== 'test') {
                 DEBUG_LOG('Adding to database');
+                const finishPosition = {
+                  type: 'Point',
+                  coordinates: [
+                    this.players[0].pos?.lng,
+                    this.players[0].pos?.lat,
+                  ],
+                };
                 GameModel.updateOne(
                   { gameID: this.gameID },
-                  { score: this.score },
+                  {
+                    score: this.score,
+                    $push: {
+                      finishPositions: finishPosition,
+                    },
+                  },
                   {
                     upsert: true,
                   },
