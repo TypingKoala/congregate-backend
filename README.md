@@ -27,6 +27,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/user/register`](#route-apiuserregister)
     - [Route `/api/user/userInfo`](#route-apiuseruserinfo)
     - [Route `/api/game/leaderboard`](#route-apigameleaderboard)
+    - [Route `/api/game/heatmap`](#route-apigameheatmap)
 
 
 ## Basic User Flow
@@ -506,3 +507,30 @@ Get information about the max score and average score leaderboard
     * `avgLeaderboard` (array): an array of leaderboard entries containing `username` and `avgScore` fields, sorted in descending order by `avgScore`
     * `maxLeaderboard` (array): an array of leaderboard entries containing `username` and `maxScore` fields, sorted in descending order by `maxScore`
     * `error` (string): an error message to display to the user
+
+### Route `/api/game/heatmap`
+* [Implementation](src/api/game/heatmap.ts)
+
+Get finish positions of games, useful for displaying in a heatmap.
+
+* Request
+  * `GET /api/game/heatmap`
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `finishPositions` (array): an array of objects with one field `pos` containing
+      an array with the longitude and latitude (in that order)
+    * `error` (string): an error message to display to the user
+
+```json
+{
+    "finishPositions": [
+        {
+            "pos": [
+                -71.06811757217754,
+                42.35384636282983
+            ]
+        }
+    ]
+}
+```
