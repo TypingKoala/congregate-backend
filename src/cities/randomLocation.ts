@@ -3,7 +3,6 @@ import { FeatureCollection, Polygon, Properties } from "@turf/helpers"
 import { Position } from '../congregate-redis/Position';
 import _ from 'lodash';
 import game_settings from '../game_settings';
-import polygonize from '@turf/polygonize';
 import randomLocation from 'random-location';
 
 const randomPointsOnPolygon = require('random-points-on-polygon');
