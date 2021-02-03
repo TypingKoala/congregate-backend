@@ -1,5 +1,7 @@
 import { Position } from '../congregate-redis/Position';
+import { ServerLogger } from '../logger';
 import _ from 'lodash';
+import game_settings from '../game_settings';
 
 export interface CityCoords {
   ne_pos: Position;
@@ -15,6 +17,19 @@ export const city_coords: Record<Cities, []> = {
 };
 
 export const getRandomPositions = (city: Cities): [Position, Position] => {
+  // use the same location in test mode
+  if (game_settings.TEST_MODE) {
+    ServerLogger.warn("Generating non-random locations with test mode.")
+    return [{
+      lat: 42.365573,
+      lng: -71.104039
+    }, {
+      lat: 42.357775,
+      lng: -71.092889
+    }]
+  }
+
+
   // get first random position
   const position_pair = _.sample(city_coords[city]);
   if (!position_pair) {
@@ -25,10 +40,6 @@ export const getRandomPositions = (city: Cities): [Position, Position] => {
     lng: position_pair[0][0]
   };
 
-  // use the same location in test mode
-  if (process.env.TEST_MODE) {
-    return [pos1, pos1]
-  }
 
   const pos2: Position = {
     lat: position_pair[1][1],
