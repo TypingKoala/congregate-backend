@@ -2,6 +2,7 @@ import Game from '../../models/Game';
 import { ServerLogger } from '../../logger';
 import express from 'express';
 import { redisClient } from '../../app';
+import serverOptions from '../../serverOptions';
 
 const app = express.Router();
 
@@ -41,15 +42,12 @@ app.get('/heatmap', (req, res, next) => {
           const result = finishPositions.map((finishPos: IFinishPosition) => {
             return { pos: finishPos.pos };
           });
-          redisClient.set(
+          redisClient.setex(
             'congregate:heatmap',
+            serverOptions.HEATMAP_TTL,
             JSON.stringify(result),
-            (err) => {
-              if (err) return next(err);
-              redisClient.expire(
-                'congregate:heatmap',
-                parseInt(process.env.HEATMAP_TTL!)
-              );
+            (err, result) => {
+              if (err) return next(err)
             }
           );
           res.json({ finishPositions: result });
