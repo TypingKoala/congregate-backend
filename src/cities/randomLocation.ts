@@ -25,6 +25,11 @@ export const getRandomPositions = (city: Cities): [Position, Position] => {
     lng: position_pair[0][0]
   };
 
+  // use the same location in test mode
+  if (process.env.TEST_MODE) {
+    return [pos1, pos1]
+  }
+
   const pos2: Position = {
     lat: position_pair[1][1],
     lng: position_pair[1][0],
