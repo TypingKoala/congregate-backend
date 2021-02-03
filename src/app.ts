@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { matchPlayer } from './realtime-middlewares/games';
 import mongoose from 'mongoose';
+// connect to redis
+import redis from 'redis';
 import { registerRealtimeHandlers } from './realtime-handlers';
 // Setup logging
 import winston from 'winston';
@@ -33,6 +35,13 @@ if (process.env.NODE_ENV !== 'test') {
   });
   db.on('open', () => {
     logger.info('Connected to database.');
+  });
+}
+
+export var redisClient: redis.RedisClient;
+if (process.env.NODE_ENV !== 'test') {
+  redisClient = redis.createClient({
+    url: process.env.REDIS_CONN_STR,
   });
 }
 
