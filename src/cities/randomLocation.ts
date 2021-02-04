@@ -1,6 +1,7 @@
 import { Position } from '../congregate-redis/Position';
 import { ServerLogger } from '../logger';
 import _ from 'lodash';
+import boston_coords from './boston.json';
 import game_settings from '../game_settings';
 
 export interface CityCoords {
@@ -12,8 +13,8 @@ export enum Cities {
   Boston = 'Boston',
 }
 
-export const city_coords: Record<Cities, []> = {
-  Boston: require('./boston.json')
+export const city_coords: Record<Cities, number[][][]> = {
+  Boston: boston_coords
 };
 
 export const getRandomPositions = (city: Cities): [Position, Position] => {
