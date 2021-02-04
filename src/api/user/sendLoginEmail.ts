@@ -124,9 +124,9 @@ app.post(
     if (process.env.NODE_ENV !== 'test') {
       nodemailerMailgun
         .sendMail({
-          from: 'Congregate No-Reply <congregate-no-reply@jbui.me>',
+          from: 'Street Skipper No-Reply <no-reply@streetskipper.com>',
           to: req.body.email,
-          subject: 'Connect your email address to Congregate',
+          subject: 'Connect your email address to Street Skipper',
           html,
         })
         .then((_) => {
