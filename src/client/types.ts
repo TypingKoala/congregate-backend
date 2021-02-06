@@ -1,3 +1,5 @@
+import { Position } from "../congregate-redis/Position";
+
 // game update data object definition
 export interface IGameUpdateData {
   // send current player coordinates
@@ -17,6 +19,8 @@ export enum GameStatus {
 
 export interface IPlayerData {
   username: string;
+  pos: Position | undefined;
+  socketId: string | undefined;
 }
 
 // game status data object definition

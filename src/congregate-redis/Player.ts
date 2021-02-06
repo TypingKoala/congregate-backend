@@ -11,6 +11,7 @@ const logger = winston.loggers.get('server');
 export interface IPlayerData {
   username: string;
   pos: Position | undefined;
+  socketId: string | undefined;
 }
 
 export default class Player {
@@ -50,7 +51,8 @@ export default class Player {
   getPlayerData(): IPlayerData {
     return {
       username: this.username,
-      pos: this.pos
+      socketId: this.socket?.id,
+      pos: this.pos,
     };
   }
 

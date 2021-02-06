@@ -228,6 +228,7 @@ interface Position {
 interface IPlayerData {
   username: string;
   pos: Position | undefined;
+  socketId: string | undefined;
 }
 
 // game status data object definition
