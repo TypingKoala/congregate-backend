@@ -10,7 +10,7 @@ export const generateAnonymousToken = () => {
 
   const payload: IUserJWTPayload = {
     sub: uniqueID,
-    name: 'Anonymous',
+    name: `Anonymous ${uniqueID}`,
     role: 'anonymous',
   };
 
