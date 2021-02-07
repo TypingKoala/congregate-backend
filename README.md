@@ -309,6 +309,8 @@ Returns a unique Game ID (UGID) that can be used to start a new game session.
 
 * Request
   * `GET /api/getUniqueGameID`
+  * Query Parameters:
+    * `city`: A [valid](src/cities/randomLocation.ts) city (eg. `Boston`)
 * Response
   * `Content-Type: application/json`
   * Fields:
