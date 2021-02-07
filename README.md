@@ -28,6 +28,7 @@ This document describes the implemented API of the backend server, along with th
     - [Route `/api/user/userInfo`](#route-apiuseruserinfo)
     - [Route `/api/game/leaderboard`](#route-apigameleaderboard)
     - [Route `/api/game/heatmap`](#route-apigameheatmap)
+    - [Route `/api/game/cities`](#route-apigamecities)
 
 
 ## Basic User Flow
@@ -534,6 +535,27 @@ Get finish positions of games, useful for displaying in a heatmap.
                 42.35384636282983
             ]
         }
+    ]
+}
+```
+
+### Route `/api/game/cities`
+* [Implementation](src/api/game/cities.ts)
+
+Get list of valid cities for a private game.
+
+* Request
+  * `GET /api/game/cities`
+* Response
+  * `Content-Type: application/json`
+  * Fields:
+    * `cities` (array): an array of strings representing valid cities
+    * `error` (string): an error message to display to the user
+
+```json
+{
+    "cities": [
+        "Boston"
     ]
 }
 ```
