@@ -1,3 +1,4 @@
+import { Cities } from '../cities/randomLocation';
 import mongoose from 'mongoose';
 
 export interface IGameModel {
@@ -29,6 +30,9 @@ export const gameSchema = new mongoose.Schema({
   },
   finishPositions: {
     type: [pointSchema]
+  },
+  city: {
+    type: String
   }
 });
 

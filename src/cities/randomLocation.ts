@@ -13,6 +13,8 @@ export enum Cities {
   Boston = 'Boston',
 }
 
+export const ValidCities = [Cities.Boston];
+
 export const city_coords: Record<Cities, number[][][]> = {
   Boston: boston_coords
 };
