@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 export interface IGameModel {
   gameID: string;
   score: number;
+  city: Cities
 }
 
 const pointSchema = new mongoose.Schema({

@@ -12,16 +12,26 @@ describe('getRandomGameID()', () => {
 describe('GET /api/getUniqueGameID', () => {
   it('responds with json', (done) => {
     request(app)
-      .get('/api/getUniqueGameID')
+      .get('/api/getUniqueGameID?city=Boston')
       .expect('Content-Type', /json/)
       .expect(200, done);
   });
 
   it('returns a gameID in the json', (done) => {
     request(app)
-      .get('/api/getUniqueGameID')
+      .get('/api/getUniqueGameID?city=Boston')
       .then((response) => {
         expect(Object.keys(response.body)).toContain('gameID');
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it('fails with invalid city', (done) => {
+    request(app)
+      .get('/api/getUniqueGameID?city=invalid')
+      .then((response) => {
+        expect(Object.keys(response.body)).toContain('error');
         done();
       })
       .catch((err) => done(err));

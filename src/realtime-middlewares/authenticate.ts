@@ -73,9 +73,9 @@ export const authenticateConnection = (socket: Socket, next: any) => {
       (err, decoded) => {
         // handle verification error
         if (err) {
+          logger.error(err);
           logger.warn('Token verification failed', { token });
-          const err = new Error('Authentication failed.');
-          return next(err);
+          return next(new Error('Authentication failed.'));
         }
 
         // verify correct payload format

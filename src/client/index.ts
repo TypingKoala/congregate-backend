@@ -24,7 +24,7 @@ const BACKEND_URL = 'http://localhost:5000';
 // Socket.io config
 const socket = io(BACKEND_URL, {
   query: {
-    gameID: 'hello',
+    gameID: 'LavishThoseButterfly',
   },
   // @ts-ignore
   auth: {

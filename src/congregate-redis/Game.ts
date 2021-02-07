@@ -1,6 +1,6 @@
 'use strict';
 
-import { Cities, getRandomPositions } from '../cities/randomLocation';
+import { Cities, ValidCities, getRandomPositions } from '../cities/randomLocation';
 import GameModel, { IGameModel } from '../models/Game';
 import { GameStatus, IGameStatusData } from './GameStatus';
 import User, { IUserModel } from '../models/User';
@@ -8,6 +8,7 @@ import { clearTimeout, setTimeout } from 'timers';
 
 import Player from './Player';
 import { ServerLogger } from '../logger';
+import _ from 'lodash';
 import assert from 'assert';
 import game_settings from '../game_settings';
 import { getDistance } from './Position';
@@ -34,6 +35,7 @@ export default class Game {
   private status: GameStatus;
   private score: number;
   private readonly players: Player[];
+  readonly city: Cities;
 
   private countdownTotalTime?: number;
   private countdownStartTime?: number;
@@ -44,18 +46,19 @@ export default class Game {
   /**
    *
    * @param gameID a unique gameID for the game being played
+   * @param city a city to play a game in
    * @param onUpdate a function to call on each update of the game state
    */
-  constructor(gameID: string, onUpdate?: (game: Game) => void) {
+  constructor(gameID: string, city?: Cities, onUpdate?: (game: Game) => void) {
     this.gameID = gameID;
     this.status = GameStatus.InLobby;
     this.score = 0;
     this.onUpdate = onUpdate;
     this.players = [];
+    this.city = (city)? city : _.sample(ValidCities)!;
   }
 
   // PRIVATE METHODS
-
   private registerCountdown(sec: number) {
     assert(this.countdownTimeout === undefined, 'double ticker registration');
     this.countdownStartTime = Date.now();
@@ -125,7 +128,8 @@ export default class Game {
           this.registerCountdown(game_settings.ROUND_TIMER);
           this.status = GameStatus.InProgress;
           // set initial positions of players
-          const positions = getRandomPositions(Cities.Boston);
+          assert(ValidCities.includes(this.city), 'invalid city')
+          const positions = getRandomPositions(this.city);
           this.players[0].pos = positions[0];
           this.players[1].pos = positions[1];
           // send position to players
