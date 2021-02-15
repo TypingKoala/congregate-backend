@@ -2,6 +2,8 @@ import { Position } from '../congregate-redis/Position';
 import { ServerLogger } from '../logger';
 import _ from 'lodash';
 import boston_coords from './boston.json';
+import buffalo_coords from './buffalo.json';
+import new_york_coords from './new_york.json';
 import game_settings from '../game_settings';
 
 export interface CityCoords {
@@ -11,12 +13,20 @@ export interface CityCoords {
 
 export enum Cities {
   Boston = 'Boston',
+  Buffalo = 'Buffalo',
+  NewYork = 'NewYork'
 }
 
-export const ValidCities = [Cities.Boston];
+export const ValidCities = [
+  Cities.Boston, 
+  Cities.Buffalo,
+  Cities.NewYork
+];
 
 export const city_coords: Record<Cities, number[][][]> = {
-  Boston: boston_coords
+  Boston: boston_coords,
+  Buffalo: buffalo_coords,
+  NewYork: new_york_coords
 };
 
 export const getRandomPositions = (city: Cities): [Position, Position] => {
